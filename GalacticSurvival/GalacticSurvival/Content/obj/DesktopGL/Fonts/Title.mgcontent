@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Title.spritefont</SourceFile>
+  <SourceTime>2022-07-26T05:44:10-06:00</SourceTime>
+  <DestFile>E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Title.xnb</DestFile>
+  <DestTime>2024-01-12T10:56:07.5567322-07:00</DestTime>
+  <Importer>FontDescriptionImporter</Importer>
+  <ImporterTime>2022-07-26T05:44:56-06:00</ImporterTime>
+  <Processor>FontDescriptionProcessor</Processor>
+  <ProcessorTime>2022-07-26T05:44:56-06:00</ProcessorTime>
+  <Parameters>
+    <Key>PremultiplyAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Compressed</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>
