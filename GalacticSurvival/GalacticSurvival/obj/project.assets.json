@@ -108,11 +108,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\GalacticSurvival\\GalacticSurvival\\GalacticSurvival.csproj",
+      "projectUniqueName": "E:\\Galactic\\GalacticSurvival\\GalacticSurvival\\GalacticSurvival.csproj",
       "projectName": "GalacticSurvival",
-      "projectPath": "E:\\GalacticSurvival\\GalacticSurvival\\GalacticSurvival.csproj",
+      "projectPath": "E:\\Galactic\\GalacticSurvival\\GalacticSurvival\\GalacticSurvival.csproj",
       "packagesPath": "C:\\Users\\Alex\\.nuget\\packages\\",
-      "outputPath": "E:\\GalacticSurvival\\GalacticSurvival\\obj\\",
+      "outputPath": "E:\\Galactic\\GalacticSurvival\\GalacticSurvival\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

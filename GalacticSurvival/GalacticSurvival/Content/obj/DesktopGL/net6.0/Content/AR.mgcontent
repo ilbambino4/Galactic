@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>E:/GalacticSurvival/GalacticSurvival/Content/AR.png</SourceFile>
+  <SourceFile>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/AR.png</SourceFile>
   <SourceTime>2024-01-08T14:51:53-07:00</SourceTime>
-  <DestFile>E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Content/AR.xnb</DestFile>
-  <DestTime>2024-01-15T09:21:50.199001-07:00</DestTime>
+  <DestFile>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Content/AR.xnb</DestFile>
+  <DestTime>2024-01-15T10:16:48.6920667-07:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T05:44:56-06:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

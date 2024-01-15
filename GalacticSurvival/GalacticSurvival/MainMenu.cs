@@ -19,7 +19,7 @@ namespace GalacticSurvival
         public Dictionary<string, UI> elements = new Dictionary<string, UI>();
 
 
-        public MainMenu(GraphicsDeviceManager graphics)
+        public MainMenu(GraphicsDeviceManager graphics, Camera camera)
         {
             // Vars used for Main Menu UI Creation
             string text;
@@ -34,6 +34,7 @@ namespace GalacticSurvival
             text = "GALACTIC";
             textSize = Game1.Title.MeasureString(text);
             textPos = new Vector2(graphics.PreferredBackBufferWidth / 2 - textSize.X / 2, graphics.PreferredBackBufferHeight / 2 - textSize.Y / 2 - 200);
+            textPos = camera.ScreenToWorld(textPos, 0); // Converts position to world coordinates for camera
             Title = new UI(text, Color.Red, textPos, Game1.Title);
             elements["title"] = Title; // Adds created element to elements list
 
@@ -43,6 +44,7 @@ namespace GalacticSurvival
             buttonHeight = 130;
             buttonPos.X = graphics.PreferredBackBufferWidth / 2 - buttonWidth / 2;
             buttonPos.Y = graphics.PreferredBackBufferHeight / 2 - buttonHeight / 2 + 150;
+            buttonPos = camera.ScreenToWorld(buttonPos, 0);
             text = "Play";
             textSize = Game1.Text.MeasureString(text);
             textPos.X = buttonPos.X + buttonWidth / 2 - textSize.X / 2;

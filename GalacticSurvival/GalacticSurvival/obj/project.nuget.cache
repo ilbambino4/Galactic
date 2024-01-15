@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "KjkHe11bEE4d0zhcLA/kwr5eAPHKFpCLDXkBILZI9mzc+mtOfBENAFgiMVVJeW/jOVZRk4cG6lIQohReFdkgfg==",
+  "dgSpecHash": "DgdYfDUDkWr2SfZ7TXxmTzTPO5KXkIsPjyo8Xp0NGjr1Jtw4fP+PLTCAMmKnYUP3ngf8I0ZRvLap5tsEbqK9oQ==",
   "success": true,
-  "projectFilePath": "E:\\GalacticSurvival\\GalacticSurvival\\GalacticSurvival.csproj",
+  "projectFilePath": "E:\\Galactic\\GalacticSurvival\\GalacticSurvival\\GalacticSurvival.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Alex\\.nuget\\packages\\monogame.content.builder.task\\3.8.1.303\\monogame.content.builder.task.3.8.1.303.nupkg.sha512",
     "C:\\Users\\Alex\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.1.303\\monogame.framework.desktopgl.3.8.1.303.nupkg.sha512",

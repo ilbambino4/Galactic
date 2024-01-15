@@ -13,7 +13,7 @@ namespace GalacticSurvival
 
         public Dictionary<string, UI> elements = new Dictionary<string, UI>();
 
-        public GameOver(GraphicsDeviceManager graphics)
+        public GameOver(GraphicsDeviceManager graphics, Camera camera)
         {
             // Vars used for Main Menu UI Creation
             string text;
@@ -28,6 +28,7 @@ namespace GalacticSurvival
             buttonHeight = 130;
             buttonPos.X = graphics.PreferredBackBufferWidth / 2 - buttonWidth / 2;
             buttonPos.Y = graphics.PreferredBackBufferHeight / 2 - buttonHeight / 2 + 150;
+            buttonPos = camera.ScreenToWorld(buttonPos, 0);
             text = "Continue";
             textSize = Game1.Text.MeasureString(text);
             textPos.X = buttonPos.X + buttonWidth / 2 - textSize.X / 2;

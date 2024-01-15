@@ -32,10 +32,12 @@ namespace GalacticSurvival
         public static SpriteFont Text{get; set;}
         public static SpriteFont Faces{get; set;}
 
-        private MainMenu mainMenu;
-        private GameOver gameOverMenu;
+        private MainMenu mainMenu = null;
+        private GameOver gameOverMenu = null;
 
         private Cursor cursor;
+
+        Camera camera;
 
         private Mission mission = null;
 
@@ -60,8 +62,8 @@ namespace GalacticSurvival
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            _graphics.PreferredBackBufferWidth = 1920/4;
-            _graphics.PreferredBackBufferHeight = 1080/4;
+            _graphics.PreferredBackBufferWidth = 1920;
+            _graphics.PreferredBackBufferHeight = 1080;
             _graphics.ApplyChanges();
 
             base.Initialize(); // All other functions like Load Content for instance
@@ -76,21 +78,20 @@ namespace GalacticSurvival
             // Debug Textures
             green = CreateColoredTexture(GraphicsDevice, Color.Green, 16, 16);
             blue = CreateColoredTexture(GraphicsDevice, Color.Blue, 16, 16);
-            red = CreateColoredTexture(GraphicsDevice, Color.Red, 16, 16);
+            red = CreateColoredTexture(GraphicsDevice, Color.DarkRed, 16, 16);
 
             // Loads Fonts
             Title = Content.Load<SpriteFont>("Fonts/Title");
             Text = Content.Load<SpriteFont>("Fonts/Text");
             Faces = Content.Load<SpriteFont>("Fonts/Face");
 
-            mainMenu = new MainMenu(_graphics); // Loads Main Menu
-            gameOverMenu = new GameOver(_graphics); // Loads Main Menu
+            camera = new Camera(new Vector2(0, 0), 0, new Vector2(1f, 1f), (1920, 1080));
 
             cursor = new Cursor(blue);
 
             player.Load(_spriteBatch, Content); // Loads Player
         }
-
+        
         protected override void Update(GameTime gameTime)
         {
             // TODO: Add your update logic here
@@ -103,7 +104,10 @@ namespace GalacticSurvival
             {
                 // MAIN MENU
                 case State.MainMenu:
-                    cursor.Update(mainMenu.elements);
+                    if (mainMenu == null)
+                        mainMenu = new MainMenu(_graphics, camera); // Loads Main Menu
+
+                    cursor.Update(mainMenu.elements, camera);
 
                     currentState = mainMenu.Update(currentState);
                     break;
@@ -112,7 +116,7 @@ namespace GalacticSurvival
 
                 // BASE
                 case State.Base:
-                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies);
+                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera);
                     break;
                 // END OF BASE
 
@@ -120,13 +124,11 @@ namespace GalacticSurvival
                 // MISSION
                 case State.Mission:
                     if (mission == null)
-                    {
                         mission = new Mission(player);
-                    }
 
-                    cursor.Update(null);
+                    cursor.Update(null, camera);
 
-                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies);
+                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera);
 
                     if (player.health <= 0)
                     {
@@ -135,7 +137,7 @@ namespace GalacticSurvival
                         currentState = State.GameOver; // Ends Mission and goes to GAME OVER scene
                     }
 
-                    //mission.Update(gameTime, _graphics, enemies, player, camera);
+                    mission.Update(gameTime, _graphics, enemies, player);
                     break;
                 // END OF MISSION
 
@@ -148,7 +150,10 @@ namespace GalacticSurvival
 
                 // GAME OVER
                 case State.GameOver:
-                    cursor.Update(gameOverMenu.elements);
+                    if (gameOverMenu == null)
+                        gameOverMenu = new GameOver(_graphics, camera); // Loads Main Menu
+                    
+                    cursor.Update(gameOverMenu.elements, camera);
 
                     currentState = gameOverMenu.Update(currentState);
                     break;
@@ -168,15 +173,19 @@ namespace GalacticSurvival
         {
             GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null, camera.View(0f));
+
 
             switch (currentState)
             {
                 // MAIN MENU
                 case State.MainMenu:
-                    foreach (var e in mainMenu.elements) // Draws UI elements attached to Main Menu
+                    if (mainMenu != null)
                     {
-                        e.Value.Draw(gameTime, _spriteBatch, _graphics);
+                        foreach (var e in mainMenu.elements) // Draws UI elements attached to Main Menu
+                        {
+                            e.Value.Draw(gameTime, _spriteBatch, _graphics);
+                        }
                     }
                     break;
                 // END OF MAIN MENU
@@ -192,17 +201,22 @@ namespace GalacticSurvival
 
                 // MISSION
                 case State.Mission:
-                    player.Draw(gameTime, _spriteBatch, _graphics); // Draws player
-
-                    foreach (var e in enemies) // Draws enemies
+                    if (mission != null)
                     {
-                        if (e.enemyType == "Spawner")
+                        _spriteBatch.Draw(red, mission.container, Color.White);
+
+                        player.Draw(gameTime, _spriteBatch, _graphics); // Draws player
+
+                        foreach (var e in enemies) // Draws enemies
                         {
-                            _spriteBatch.Draw(green, e.collider.container, Color.White);
-                        }
-                        else if (e.enemyType == "Rusher")
-                        {
-                            _spriteBatch.Draw(blue, e.collider.container, Color.White);
+                            if (e.enemyType == "Spawner")
+                            {
+                                _spriteBatch.Draw(green, e.collider.container, Color.White);
+                            }
+                            else if (e.enemyType == "Rusher")
+                            {
+                                _spriteBatch.Draw(blue, e.collider.container, Color.White);
+                            }
                         }
                     }
                     break;
@@ -217,9 +231,12 @@ namespace GalacticSurvival
 
                 // GAME OVER
                 case State.GameOver:
-                    foreach (var e in gameOverMenu.elements) // Draws UI elements attached to Main Menu
+                    if (gameOverMenu != null)
                     {
-                        e.Value.Draw(gameTime, _spriteBatch, _graphics);
+                        foreach (var e in gameOverMenu.elements) // Draws UI elements attached to Main Menu
+                        {
+                            e.Value.Draw(gameTime, _spriteBatch, _graphics);
+                        }
                     }
                     break;
                 // END OF GAME OVER

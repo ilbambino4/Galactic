@@ -16,8 +16,11 @@ namespace GalacticSurvival
         private Texture2D texture;
         private MouseState mouseState;
 
+        private Vector2 mousePosition = new Vector2();
+
         private bool clicked = false;
         private bool released = true;
+
 
         public Cursor(Texture2D t)
         {
@@ -27,11 +30,17 @@ namespace GalacticSurvival
 
 
         // Updates Cursor
-        public void Update(Dictionary<string, UI> elements)
+        public void Update(Dictionary<string, UI> elements, Camera camera)
         {
+            // Converts screen mouse pos
             mouseState = Mouse.GetState();
-            collider.container.X = mouseState.X;
-            collider.container.Y = mouseState.Y;
+            mousePosition.X = mouseState.X;
+            mousePosition.Y = mouseState.Y;
+            mousePosition = camera.ScreenToWorld(mousePosition, 0);
+
+
+            collider.container.X = (int)mousePosition.X;
+            collider.container.Y = (int)mousePosition.Y;
 
             if (mouseState.LeftButton == ButtonState.Pressed && released)
             {

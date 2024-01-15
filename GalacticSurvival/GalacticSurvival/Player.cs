@@ -24,13 +24,14 @@ namespace GalacticSurvival
 
         private Texture2D playerSprite;
         private Texture2D bulletSprite;
+        private Rectangle bulletBoundry;
 
         public Vector2 position = new Vector2(0, 0);
         private Rectangle playerContainer;
 
         private MouseState mouseState;
+        private Vector2 mousePosition;
         bool shot = false;
-        Rectangle bulletBoundry;
 
         private float angle;
         private float currentBulletAngle;
@@ -54,7 +55,7 @@ namespace GalacticSurvival
         }
 
 
-        public Game1.State Update(GameTime gameTime, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game1.State currentState, List<Enemy> enemies)
+        public Game1.State Update(GameTime gameTime, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game1.State currentState, List<Enemy> enemies, Camera camera)
         {
             if (!init)
                 initialize(graphics);
@@ -78,7 +79,7 @@ namespace GalacticSurvival
                 // MISSION
                 case Game1.State.Mission:
                     
-                    angle = getAngle();
+                    angle = getAngle(camera);
 
                     if (shot)
                     {
@@ -117,6 +118,7 @@ namespace GalacticSurvival
                             }
                         }
                     }
+
 
                     foreach (var b in bulletsToRemove)
                         bullets.Remove(b);
@@ -157,11 +159,17 @@ namespace GalacticSurvival
         }
 
 
-        private float getAngle()
+        private float getAngle(Camera camera)
         {
+            // Gets Mouse state and converts position to the real world from the screen's camera position
             mouseState = Mouse.GetState();
+            mousePosition.X = mouseState.X;
+            mousePosition.Y = mouseState.Y;
 
-            return (float)Math.Atan2(mouseState.Y - position.Y, mouseState.X - position.X);
+            mousePosition = camera.ScreenToWorld(mousePosition, 0);
+
+            // Returns the angle
+            return (float)Math.Atan2(mousePosition.Y - position.Y, mousePosition.X - position.X);
         }
 
 
@@ -171,7 +179,7 @@ namespace GalacticSurvival
             //position = new Vector2((graphics.PreferredBackBufferWidth / 2) - (playerSprite.Width / 2), (graphics.PreferredBackBufferHeight / 2) - (playerSprite.Height / 2));
             playerContainer = new Rectangle((int)position.X, (int)position.Y, playerSprite.Width, playerSprite.Height);
             rotationOrigin = new Vector2(playerSprite.Width / 2, playerSprite.Height / 2);
-            bulletBoundry = new Rectangle(0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
+            bulletBoundry = new Rectangle(-graphics.PreferredBackBufferWidth/2, -graphics.PreferredBackBufferHeight/2, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
             bullets.Clear();
             bulletsToRemove.Clear();
             init = true;

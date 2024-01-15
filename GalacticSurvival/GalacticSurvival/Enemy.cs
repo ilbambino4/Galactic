@@ -13,9 +13,10 @@ namespace GalacticSurvival
         public string enemyType = "";
 
         private Vector2 position;
+        private Vector2 paddingCheck;
         private float angle;
 
-        private int spawnerSize = 128;
+        private int spawnerSize = 96;
         private double spawnTimer;
         private double spawnerInterval = 0.1;
         private Enemy spawnedEnemy = null;
@@ -40,27 +41,37 @@ namespace GalacticSurvival
 
             health = 400;
 
-            // Decides where to spawn spawner
-            switch (random.Next(1, 5))
+            while (Vector2.Distance(player.position, paddingCheck) < missionContainer.Height * 0.4 || Vector2.Distance(player.position, paddingCheck) > missionContainer.Height*0.75)
             {
-                case 1: // Top
-                    //position = new Vector2(random.Next((int)player.position.Y - missionContainer.Height/2, graphics.PreferredBackBufferWidth), random.Next(0, (int)player.position.Y - (int)(missionContainer.Width * 0.25)));
-                    break;
-                case 2: // Down
-                    //position = new Vector2(random.Next((int)player.position.Y, graphics.PreferredBackBufferWidth), random.Next(((int)player.position.Y + (int)(missionContainer.Width * 0.25)), graphics.PreferredBackBufferHeight));
-                    break;
-                case 3: // Left
-                    //position = new Vector2(random.Next((int)player.position.X - missionContainer.Width/2, (int)player.position.X - (int)(missionContainer.Width * 0.25)), random.Next(0, graphics.PreferredBackBufferHeight));
-                    break;
-                case 4: // Right
-                    //position = new Vector2(random.Next((int)player.position.X + (int)(missionContainer.Width * 0.25), graphics.PreferredBackBufferWidth), random.Next(0, graphics.PreferredBackBufferHeight));
-                    break;
-                default:
-                    Console.log("ERROR INVALID SIDE FOR SPAWN");
-                    break;
+                // Decides where to spawn spawner
+                switch (random.Next(1, 5))
+                {
+                    case 1: // Top
+                        position = new Vector2(random.Next(missionContainer.X, missionContainer.X + missionContainer.Width - spawnerSize), random.Next(missionContainer.Y, (int)player.position.Y - spawnerSize * 3));
+                        //position = new Vector2(random.Next((int)player.position.Y - missionContainer.Height/2, graphics.PreferredBackBufferWidth), random.Next(0, (int)player.position.Y - (int)(missionContainer.Width * 0.25)));
+                        break;
+                    case 2: // Down
+                        position = new Vector2(random.Next(missionContainer.X, missionContainer.X + missionContainer.Width - spawnerSize), random.Next((int)player.position.Y + spawnerSize * 2, missionContainer.Y + missionContainer.Height - spawnerSize));
+                        //position = new Vector2(random.Next((int)player.position.Y, graphics.PreferredBackBufferWidth), random.Next(((int)player.position.Y + (int)(missionContainer.Width * 0.25)), graphics.PreferredBackBufferHeight));
+                        break;
+                    case 3: // Left
+                        position = new Vector2(random.Next(missionContainer.X, (int)player.position.X - spawnerSize * 3), random.Next(missionContainer.Y, missionContainer.Y + missionContainer.Height - spawnerSize));
+                        //position = new Vector2(random.Next((int)player.position.X - missionContainer.Width/2, (int)player.position.X - (int)(missionContainer.Width * 0.25)), random.Next(0, graphics.PreferredBackBufferHeight));
+                        break;
+                    case 4: // Right
+                        position = new Vector2(random.Next((int)player.position.X + spawnerSize * 2, missionContainer.X + missionContainer.Width - spawnerSize), random.Next(missionContainer.Y, missionContainer.Y + missionContainer.Height - spawnerSize));
+                        //position = new Vector2(random.Next((int)player.position.X + (int)(missionContainer.Width * 0.25), graphics.PreferredBackBufferWidth), random.Next(0, graphics.PreferredBackBufferHeight));
+                        break;
+                    default:
+                        Console.log("ERROR INVALID SIDE FOR SPAWN");
+                        break;
+                }
+
+                paddingCheck.X = position.X + spawnerSize / 2;
+                paddingCheck.Y = position.Y + spawnerSize / 2;
             }
 
-            position = new Vector2(0, 0);
+            //position = new Vector2(missionContainer.X, missionContainer.Y);
 
             //position = new Vector2(missionContainer.X, missionContainer.Y);
 

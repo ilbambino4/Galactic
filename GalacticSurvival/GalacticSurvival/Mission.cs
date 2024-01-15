@@ -18,7 +18,9 @@ namespace GalacticSurvival
         private double spawnTimer;
         private double spawnerInterval = 1;
 
-        public Rectangle container = new Rectangle(0, 0, 1920, 1080);
+        public Rectangle container;
+        int width = 1728;
+        int height = 1024;
 
         List<Enemy> enemiesToAdd = new List<Enemy>();
         List<Enemy> enemiesToRemove = new List<Enemy>();
@@ -27,12 +29,7 @@ namespace GalacticSurvival
 
         public Mission(Player player)
         {
-            container = new Rectangle(
-                                         (int)player.position.X - container.Width / 2,
-                                         (int)player.position.Y - container.Height / 2,
-                                         container.Width,
-                                         container.Height
-                                     );
+            container = new Rectangle((int)player.position.X - width/2, (int)player.position.Y - height/2, width, height);
         }
 
 
