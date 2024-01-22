@@ -10,6 +10,8 @@ namespace GalacticSurvival
 {
     internal class Enemy
     {
+        private int currentRound;
+
         public string enemyType = "";
 
         private Vector2 position;
@@ -18,7 +20,7 @@ namespace GalacticSurvival
 
         private int spawnerSize = 96;
         private double spawnTimer;
-        private double spawnerInterval = 0.1;
+        private double spawnerInterval = 1.5;
         private Enemy spawnedEnemy = null;
 
         private int rusherSize = 16;
@@ -29,20 +31,32 @@ namespace GalacticSurvival
 
         private float speed = 1.2f;
 
-        public int health = 5;
+        public float health = 100;
 
         private Random random = new Random();
 
 
         // Spawns enemy Spawner
-        public Enemy(Player player, GraphicsDeviceManager graphics, string type, Rectangle missionContainer)
+        public Enemy(Player player, GraphicsDeviceManager graphics, string type, Rectangle missionContainer, List<Enemy> enemies, int round)
         {
             enemyType = type;
 
-            health = 400;
+            currentRound = round;
 
-            while (Vector2.Distance(player.position, paddingCheck) < missionContainer.Height * 0.4 || Vector2.Distance(player.position, paddingCheck) > missionContainer.Height*0.75)
+            health = round * 100f + round * 0.25f;
+
+            spawnerInterval = 1.5 - currentRound * 0.05;
+            if (spawnerInterval < 0.5)
+                spawnerInterval = 0.5;
+
+            var tempCollider = new Rectangle(0, 0, spawnerSize, spawnerSize);
+
+            bool spawnCollides = false;
+
+            while (Vector2.Distance(player.position, paddingCheck) < missionContainer.Height * 0.4 || Vector2.Distance(player.position, paddingCheck) > missionContainer.Height*0.75 || spawnCollides)
             {
+                spawnCollides = false;
+
                 // Decides where to spawn spawner
                 switch (random.Next(1, 5))
                 {
@@ -67,41 +81,38 @@ namespace GalacticSurvival
                         break;
                 }
 
+                // Updates the padding check
                 paddingCheck.X = position.X + spawnerSize / 2;
                 paddingCheck.Y = position.Y + spawnerSize / 2;
-            }
 
-            //position = new Vector2(missionContainer.X, missionContainer.Y);
+                tempCollider.X = (int)position.X;
+                tempCollider.Y = (int)position.Y;
 
-            //position = new Vector2(missionContainer.X, missionContainer.Y);
-
-            /*// Check for off screen spawns
-            if (position.Y - spawnerSize < 0) // Top
-            {
-                position.Y = 0 + random.Next(1, spawnerSize+1);
+                foreach (var e in enemies)
+                {
+                    if (e.collider.container.Intersects(tempCollider))
+                    {
+                        spawnCollides = true;
+                        break;
+                    }
+                    else 
+                    {
+                        spawnCollides = false;
+                    }
+                }
             }
-            if (position.Y + spawnerSize > graphics.PreferredBackBufferHeight) // Bottom
-            {
-                position.Y = (graphics.PreferredBackBufferHeight - spawnerSize) - random.Next(1, spawnerSize);
-            }
-            if (position.X - spawnerSize < 0) // Left
-            {
-                position.X  = 0 + random.Next(1, spawnerSize+1);
-            }
-            if (position.X + spawnerSize > graphics.PreferredBackBufferWidth) // Right
-            {
-                position.X = (graphics.PreferredBackBufferWidth - spawnerSize) - random.Next(1, spawnerSize);
-            }*/
 
             collider = new Collider(position, spawnerSize, spawnerSize);
         }
 
 
-        public Enemy(Player player, GraphicsDeviceManager graphics, string type, Vector2 pos)
+        public Enemy(Player player, GraphicsDeviceManager graphics, string type, Vector2 pos, int round)
         {
             switch (type)
             {
                 case "Rusher":
+                    health = currentRound * 0.25f;
+
                     enemyType = type;
 
                     position = pos;
@@ -133,7 +144,7 @@ namespace GalacticSurvival
                         if (spawnTimer >= spawnerInterval)
                         {
                             spawnTimer = 0;
-                            spawnedEnemy = new Enemy(player, graphics, "Rusher", new Vector2(random.Next(collider.container.X, collider.container.X + spawnerSize), random.Next(collider.container.Y, collider.container.Y + spawnerSize)));
+                            spawnedEnemy = new Enemy(player, graphics, "Rusher", new Vector2(random.Next(collider.container.X, collider.container.X + spawnerSize), random.Next(collider.container.Y, collider.container.Y + spawnerSize)), currentRound);
                             return spawnedEnemy; // returns spawner spawned enemy
                         }
                     break;
@@ -141,7 +152,6 @@ namespace GalacticSurvival
 
                     case "Rusher":
                         angle = (float)Math.Atan2(player.position.Y - position.Y, player.position.X - position.X);
-
 
                         if (Vector2.Distance(position, player.position) > 50)
                         {

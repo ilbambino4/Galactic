@@ -22,6 +22,7 @@ namespace GalacticSurvival
         private bool released = true;
 
 
+
         public Cursor(Texture2D t)
         {
             texture = t;

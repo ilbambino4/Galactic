@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,15 @@ namespace GalacticSurvival
             }
 
             return currentState;
+        }
+
+
+        public void Draw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics)
+        {
+            foreach (var e in elements) // Draws UI elements attached to Main Menu
+            {
+                e.Value.Draw(gameTime, _spriteBatch, graphics);
+            }
         }
 
 

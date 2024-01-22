@@ -21,7 +21,7 @@ namespace GalacticSurvival
         public Collider button = null;
         public bool pressed = false;
 
-        
+
         // Constructor for UI Text Element
         public UI(string t, Color c, Vector2 pos, SpriteFont f)
         {
@@ -43,7 +43,6 @@ namespace GalacticSurvival
             textSize = f.MeasureString(text);
             textPosition = textPos;
         }
-
 
         // Draws a UI Element
         public void Draw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics)

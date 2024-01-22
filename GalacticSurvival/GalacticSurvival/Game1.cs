@@ -19,14 +19,14 @@ namespace GalacticSurvival
         }
 
 
-        private State currentState = State.Mission;
+        private State currentState = State.UpgradeMenu;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
         public static Texture2D green;
-        private Texture2D blue;
-        private Texture2D red;
+        public static Texture2D blue;
+        public static Texture2D red;
 
         public static SpriteFont Title{get; set;}
         public static SpriteFont Text{get; set;}
@@ -34,6 +34,7 @@ namespace GalacticSurvival
 
         private MainMenu mainMenu = null;
         private GameOver gameOverMenu = null;
+        private UpgradeTree upgradeTree = null;
 
         private Cursor cursor;
 
@@ -109,14 +110,14 @@ namespace GalacticSurvival
 
                     cursor.Update(mainMenu.elements, camera);
 
-                    currentState = mainMenu.Update(currentState);
+                    currentState = mainMenu.Update(currentState, mission);
                     break;
                 // END OF MAIN MENU
 
 
                 // BASE
                 case State.Base:
-                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera);
+                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera, mission);
                     break;
                 // END OF BASE
 
@@ -124,11 +125,9 @@ namespace GalacticSurvival
                 // MISSION
                 case State.Mission:
                     if (mission == null)
-                        mission = new Mission(player);
+                        mission = new Mission(player, _graphics, camera);
 
-                    cursor.Update(null, camera);
-
-                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera);
+                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera, mission);
 
                     if (player.health <= 0)
                     {
@@ -137,13 +136,19 @@ namespace GalacticSurvival
                         currentState = State.GameOver; // Ends Mission and goes to GAME OVER scene
                     }
 
-                    mission.Update(gameTime, _graphics, enemies, player);
+                    currentState = mission.Update(gameTime, _graphics, enemies, player, camera, cursor, currentState);
                     break;
                 // END OF MISSION
 
 
                 // UPGRADE MENU
                 case State.UpgradeMenu:
+                    if (upgradeTree == null)
+                        upgradeTree = new UpgradeTree(_graphics);
+
+                    cursor.Update(null, camera);
+
+                    upgradeTree.Update(currentState, mission, cursor);
                     break;
                 // END OF UPGRADE MENU
 
@@ -182,10 +187,7 @@ namespace GalacticSurvival
                 case State.MainMenu:
                     if (mainMenu != null)
                     {
-                        foreach (var e in mainMenu.elements) // Draws UI elements attached to Main Menu
-                        {
-                            e.Value.Draw(gameTime, _spriteBatch, _graphics);
-                        }
+                        mainMenu.Draw(gameTime, _spriteBatch, _graphics);
                     }
                     break;
                 // END OF MAIN MENU
@@ -194,7 +196,6 @@ namespace GalacticSurvival
                 // BASE
                 case State.Base:
                     //maps[0].DrawTilemap(_spriteBatch);
-                    _spriteBatch.Draw(green, new Rectangle(16 * 11, 16 * 16, 16, 16), Color.White);
                     break;
                 // END OF BASE
 
@@ -203,21 +204,8 @@ namespace GalacticSurvival
                 case State.Mission:
                     if (mission != null)
                     {
-                        _spriteBatch.Draw(red, mission.container, Color.White);
-
-                        player.Draw(gameTime, _spriteBatch, _graphics); // Draws player
-
-                        foreach (var e in enemies) // Draws enemies
-                        {
-                            if (e.enemyType == "Spawner")
-                            {
-                                _spriteBatch.Draw(green, e.collider.container, Color.White);
-                            }
-                            else if (e.enemyType == "Rusher")
-                            {
-                                _spriteBatch.Draw(blue, e.collider.container, Color.White);
-                            }
-                        }
+                        //_spriteBatch.Draw(red, mission.container, Color.White); // debug
+                        mission.Draw(gameTime, _spriteBatch, _graphics, player, enemies);
                     }
                     break;
                 // END OF MISSION
@@ -225,6 +213,10 @@ namespace GalacticSurvival
 
                 // UPGRADE MENU
                 case State.UpgradeMenu:
+                    if (upgradeTree != null)
+                    {
+                        upgradeTree.Draw(gameTime, _spriteBatch, _graphics, cursor);
+                    }
                     break;
                 // END OF UPGRADE MENU
 
@@ -233,10 +225,7 @@ namespace GalacticSurvival
                 case State.GameOver:
                     if (gameOverMenu != null)
                     {
-                        foreach (var e in gameOverMenu.elements) // Draws UI elements attached to Main Menu
-                        {
-                            e.Value.Draw(gameTime, _spriteBatch, _graphics);
-                        }
+                        gameOverMenu.Draw(gameTime, _spriteBatch, _graphics);
                     }
                     break;
                 // END OF GAME OVER
@@ -267,6 +256,15 @@ namespace GalacticSurvival
             texture.SetData(colorData);
 
             return texture;
+        }
+
+
+        public static void DrawLine(SpriteBatch _spriteBatch, GraphicsDeviceManager graphics, Vector2 p1, Vector2 p2, int width, Color color)
+        {
+            var line = new Rectangle((int)p1.X, (int)p1.Y, width, (int)Vector2.Distance(p1, p2));
+            float angle = (float)Math.Atan2(p2.Y - p1.Y, p2.X - p1.X) - MathHelper.PiOver2;
+
+            _spriteBatch.Draw(blue, line, null, Color.White, angle, new Vector2(0, 0), SpriteEffects.None, 0f);
         }
     }
 }

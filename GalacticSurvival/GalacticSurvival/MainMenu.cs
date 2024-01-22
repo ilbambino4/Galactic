@@ -26,8 +26,8 @@ namespace GalacticSurvival
             Vector2 textSize;
             Vector2 textPos;
             Vector2 buttonPos;
-            int buttonWidth = 0;
-            int buttonHeight = 0;
+            int buttonWidth;
+            int buttonHeight;
 
 
             // Creates Main Title
@@ -53,16 +53,31 @@ namespace GalacticSurvival
             elements["play"] = PlayButton; // Adds created element to elements list
         }
 
-        public Game1.State Update(Game1.State currentState)
+        public Game1.State Update(Game1.State currentState, Mission mission)
         {
             if (UpdatePlayButton())
             {
                 elements["play"].pressed = false;
+
+                if (mission != null)
+                {
+                    mission.Init();
+                }
+
                 return Game1.State.Mission;
             }
 
 
             return currentState;
+        }
+
+        
+        public void Draw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics)
+        {
+            foreach (var e in elements) // Draws UI elements attached to Main Menu
+            {
+                e.Value.Draw(gameTime, _spriteBatch, graphics);
+            }
         }
 
 
@@ -71,5 +86,6 @@ namespace GalacticSurvival
 
             return elements["play"].pressed;
         }
+
     }
 }

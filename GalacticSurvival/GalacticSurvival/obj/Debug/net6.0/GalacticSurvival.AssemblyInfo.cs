@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GalacticSurvival")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0c724e0f34129abde0d6731e0d155e1fee8ec273")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4fa2077f3b994ffad3356d41f69508f238c28ff")]
 [assembly: System.Reflection.AssemblyProductAttribute("GalacticSurvival")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GalacticSurvival")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -22,6 +22,8 @@ namespace GalacticSurvival
 
         public int health;
 
+        private bool betweenRounds = false;
+
         private Texture2D playerSprite;
         private Texture2D bulletSprite;
         private Rectangle bulletBoundry;
@@ -55,7 +57,7 @@ namespace GalacticSurvival
         }
 
 
-        public Game1.State Update(GameTime gameTime, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game1.State currentState, List<Enemy> enemies, Camera camera)
+        public Game1.State Update(GameTime gameTime, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game1.State currentState, List<Enemy> enemies, Camera camera, Mission mission)
         {
             if (!init)
                 initialize(graphics);
@@ -78,51 +80,59 @@ namespace GalacticSurvival
 
                 // MISSION
                 case Game1.State.Mission:
-                    
                     angle = getAngle(camera);
 
-                    if (shot)
+                    if (!betweenRounds)
                     {
-                        if (mouseState.LeftButton == ButtonState.Released)
-                            shot = false;
+                        if (shot)
+                        {
+                            if (mouseState.LeftButton == ButtonState.Released)
+                                shot = false;
+                        }
+                        else
+                        {
+                            if (mouseState.LeftButton == ButtonState.Pressed)
+                            {
+                                currentBulletAngle = angle * (float)(180 / Math.PI);
+                                currentBulletAngle += -4 + (random.Next(9));
+                                currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
+
+
+                                bullets.Add(new Bullet(position, currentBulletAngle, 10));
+                                shot = true;
+                            }
+                        }
+
+
+                        foreach (var b in bullets)
+                        {
+                            if (!b.Update(gameTime, graphics, bulletBoundry))
+                                bulletsToRemove.Add(b);
+
+                            foreach (var e in enemies)
+                            {
+                                if (b.container.Intersects(e.collider.container))
+                                {
+                                    bulletsToRemove.Add(b);
+
+                                    e.health -= b.damage;
+
+                                    mission.points += 10;
+
+                                    break;
+                                }
+                            }
+                        }
+
+
+                        foreach (var b in bulletsToRemove)
+                            bullets.Remove(b);
                     }
                     else
                     {
-                        if (mouseState.LeftButton == ButtonState.Pressed)
-                        {
-                            currentBulletAngle = angle * (float)(180 / Math.PI);
-                            currentBulletAngle += -4 + (random.Next(9));
-                            currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
-
-
-                            bullets.Add(new Bullet(position, currentBulletAngle, 10));
-                            shot = true;
-                        }
+                        bullets.Clear();
+                        bulletsToRemove.Clear();
                     }
-
-
-                    foreach (var b in bullets)
-                    {
-                        if (!b.Update(gameTime, graphics, bulletBoundry))
-                            bulletsToRemove.Add(b);
-
-                        foreach (var e in enemies)
-                        {
-                            if (b.container.Intersects(e.collider.container))
-                            {
-                                bulletsToRemove.Add(b);
-
-                                e.health -= b.damage;
-
-                                break;
-                            }
-                        }
-                    }
-
-
-                    foreach (var b in bulletsToRemove)
-                        bullets.Remove(b);
-                    
 
                     return currentState;
                 // END OF MISSION
@@ -150,6 +160,8 @@ namespace GalacticSurvival
 
         public void Draw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics)
         {
+            betweenRounds = false;
+
             foreach (var b in bullets)
             {
                 b.Draw(bulletSprite, gameTime, _spriteBatch, graphics);
@@ -157,6 +169,13 @@ namespace GalacticSurvival
 
             _spriteBatch.Draw(playerSprite, playerContainer, null, Color.White, angle, rotationOrigin, SpriteEffects.None, 0);
         }
+
+        public void BetweenRoundDraw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics)
+        {
+            betweenRounds = true;
+            _spriteBatch.Draw(playerSprite, playerContainer, null, Color.White, angle, rotationOrigin, SpriteEffects.None, 0);
+        }
+
 
 
         private float getAngle(Camera camera)
