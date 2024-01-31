@@ -13,6 +13,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Security.Cryptography;
 using System.Diagnostics.CodeAnalysis;
 using static GalacticSurvival.Game1;
+using System.Diagnostics;
 
 namespace GalacticSurvival
 {
@@ -44,8 +45,11 @@ namespace GalacticSurvival
 
         private Random random = new Random();
 
-        private int tileSize = 32;
-
+        private double shootingTimer = 0;
+        private double defaultGunInterval = 0.5;
+        private double railGunInterval = 1.5;
+        private double scatterGunInterval = 1;
+        private double barrageGunInterval = 0.6;
 
 
 
@@ -57,7 +61,7 @@ namespace GalacticSurvival
         }
 
 
-        public Game1.State Update(GameTime gameTime, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game1.State currentState, List<Enemy> enemies, Camera camera, Mission mission)
+        public Game1.State Update(GameTime gameTime, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game1.State currentState, List<Enemy> enemies, Camera camera, Cursor cursor, Mission mission, UpgradeTree tree)
         {
             if (!init)
                 initialize(graphics);
@@ -84,25 +88,68 @@ namespace GalacticSurvival
 
                     if (!betweenRounds)
                     {
-                        if (shot)
-                        {
-                            if (mouseState.LeftButton == ButtonState.Released)
-                                shot = false;
+                        /*if (cursor.held && tree.currentWeapon == "barrageGun") {
+                            currentBulletAngle = angle * (float)(180 / Math.PI);
+                            currentBulletAngle += -4 + (random.Next(9));
+                            currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
+
+                            bullets.Add(new Bullet(position, currentBulletAngle, 10, tree));
+                            shot = true;
                         }
-                        else
+                        else if (cursor.clicked)
                         {
-                            if (mouseState.LeftButton == ButtonState.Pressed)
-                            {
-                                currentBulletAngle = angle * (float)(180 / Math.PI);
-                                currentBulletAngle += -4 + (random.Next(9));
-                                currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
+                            currentBulletAngle = angle * (float)(180 / Math.PI);
+                            currentBulletAngle += -4 + (random.Next(9));
+                            currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
+
+                            bullets.Add(new Bullet(position, currentBulletAngle, 10, tree));
+                            shot = true;
+                        }*/
+
+                        // Updates the Shooting timer
+                        shootingTimer += gameTime.ElapsedGameTime.TotalSeconds;
+
+                        // Handles Shooting (Bullet Spawning)
+                        switch (tree.currentWeapon)
+                        {
+                            case "default":
+                                if (cursor.held && shootingTimer >= defaultGunInterval)
+                                {
+                                    currentBulletAngle = angle * (float)(180 / Math.PI);
+                                    currentBulletAngle += -4 + (random.Next(9));
+                                    currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
+
+                                    bullets.Add(new Bullet(position, currentBulletAngle, 10, tree));
+                                    shot = true;
+
+                                    shootingTimer = 0;
+                                }
+                                break;
 
 
-                                bullets.Add(new Bullet(position, currentBulletAngle, 10));
-                                shot = true;
-                            }
+
+                            case "railGun":
+                                    
+                                break;
+
+
+
+                            case "scatterGun":
+                                    
+                                break;
+
+
+
+                            case "barrageGun":
+                                    
+                                break;
+
+
+
+                            default:
+                                Console.log("ERROR UNKOWN CURRENT WEAPON FOR PLAYER: " + tree.currentWeapon);
+                                break;
                         }
-
 
                         foreach (var b in bullets)
                         {
@@ -117,7 +164,12 @@ namespace GalacticSurvival
 
                                     e.health -= b.damage;
 
-                                    mission.points += 10;
+
+                                    if (e.type == "Spawner")
+                                    {
+                                        mission.points += 10;
+                                        Console.log(e.health + "");
+                                    }
 
                                     break;
                                 }

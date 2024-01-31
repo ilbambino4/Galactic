@@ -30,6 +30,8 @@ namespace GalacticSurvival
 
         public static SpriteFont Title{get; set;}
         public static SpriteFont Text{get; set;}
+        public static SpriteFont TextSmall{get; set;}
+        public static SpriteFont TextLarge{get; set; }
         public static SpriteFont Faces{get; set;}
 
         private MainMenu mainMenu = null;
@@ -83,7 +85,9 @@ namespace GalacticSurvival
 
             // Loads Fonts
             Title = Content.Load<SpriteFont>("Fonts/Title");
+            TextSmall = Content.Load<SpriteFont>("Fonts/TextSmall");
             Text = Content.Load<SpriteFont>("Fonts/Text");
+            TextLarge = Content.Load<SpriteFont>("Fonts/TextLarge");
             Faces = Content.Load<SpriteFont>("Fonts/Face");
 
             camera = new Camera(new Vector2(0, 0), 0, new Vector2(1f, 1f), (1920, 1080));
@@ -100,6 +104,8 @@ namespace GalacticSurvival
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            cursor.Update();
+
             // Updates depending on current state of game
             switch (currentState)
             {
@@ -108,16 +114,16 @@ namespace GalacticSurvival
                     if (mainMenu == null)
                         mainMenu = new MainMenu(_graphics, camera); // Loads Main Menu
 
-                    cursor.Update(mainMenu.elements, camera);
+                    cursor.UpdateElements(mainMenu.elements, camera);
 
-                    currentState = mainMenu.Update(currentState, mission);
+                    currentState = mainMenu.Update(currentState, mission, cursor, _graphics, camera);
                     break;
                 // END OF MAIN MENU
 
 
                 // BASE
                 case State.Base:
-                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera, mission);
+                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera, cursor, mission, upgradeTree);
                     break;
                 // END OF BASE
 
@@ -126,8 +132,11 @@ namespace GalacticSurvival
                 case State.Mission:
                     if (mission == null)
                         mission = new Mission(player, _graphics, camera);
+                    if (upgradeTree == null)
+                        upgradeTree = new UpgradeTree(_graphics, camera);
 
-                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera, mission);
+                    currentState = player.Update(gameTime, _graphics, GraphicsDevice, currentState, enemies, camera, cursor, mission, upgradeTree);
+
 
                     if (player.health <= 0)
                     {
@@ -143,12 +152,14 @@ namespace GalacticSurvival
 
                 // UPGRADE MENU
                 case State.UpgradeMenu:
+                    if (mission == null)
+                        mission = new Mission(player, _graphics, camera);
                     if (upgradeTree == null)
-                        upgradeTree = new UpgradeTree(_graphics);
+                        upgradeTree = new UpgradeTree(_graphics, camera);
 
-                    cursor.Update(null, camera);
+                    cursor.UpdateElements(upgradeTree.elements, camera);
 
-                    upgradeTree.Update(currentState, mission, cursor);
+                    currentState = upgradeTree.Update(currentState, mission, cursor);
                     break;
                 // END OF UPGRADE MENU
 
@@ -158,7 +169,7 @@ namespace GalacticSurvival
                     if (gameOverMenu == null)
                         gameOverMenu = new GameOver(_graphics, camera); // Loads Main Menu
                     
-                    cursor.Update(gameOverMenu.elements, camera);
+                    cursor.UpdateElements(gameOverMenu.elements, camera);
 
                     currentState = gameOverMenu.Update(currentState);
                     break;
@@ -170,6 +181,8 @@ namespace GalacticSurvival
                     Console.log("ERROR UPDATING!!!!!!!!!!!!!!!!!!!!!!!!");
                     break;
             }
+
+            cursor.clicked = false;
 
             base.Update(gameTime);
         }
@@ -215,6 +228,7 @@ namespace GalacticSurvival
                 case State.UpgradeMenu:
                     if (upgradeTree != null)
                     {
+                        mission.DrawForUpgradeTree(gameTime, _spriteBatch, _graphics, player, enemies);
                         upgradeTree.Draw(gameTime, _spriteBatch, _graphics, cursor);
                     }
                     break;

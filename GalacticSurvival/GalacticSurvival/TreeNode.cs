@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 
 using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
 using System.Text;
 using System.Timers;
 
@@ -48,7 +49,7 @@ namespace GalacticSurvival
 
 
         private int padding = 15;
-        private int titleDescriptionPadding = 10;
+        private int titleDescriptionPadding = 20;
         private int descriptionLevelPadding = 20;
         private int levelCostPadding = 20;
 
@@ -86,16 +87,29 @@ namespace GalacticSurvival
             title = tit;
             description = desc;
             cost = c;
-            level = 1;
+            level = 0;
             titleFont = tf;
             descriptionFont = df;
 
             titleSize = titleFont.MeasureString(title);
             descriptionSize = descriptionFont.MeasureString(description);
-            levelSize = descriptionFont.MeasureString("Current Level: " + level);
-            costSize = descriptionFont.MeasureString("Upgrade Cost: $" + cost);
 
-            textBox = new Rectangle(0, 0, (int)(titleSize.X + descriptionSize.X + padding), (int)(titleSize.Y + descriptionSize.Y + levelSize.Y + costSize.Y + titleDescriptionPadding + descriptionLevelPadding));
+            if (cost > 0)
+            {
+                levelSize = descriptionFont.MeasureString("Current Level: " + level);
+                costSize = descriptionFont.MeasureString("Upgrade Cost: $" + cost);
+            }
+            else
+            {
+                levelSize = Vector2.Zero;
+                costSize = Vector2.Zero;
+            }
+
+            if (c > 0) // Init for Text Box of Upgradable Node
+                textBox = new Rectangle(0, 0, (int)(titleSize.X + descriptionSize.X + padding), (int)(titleSize.Y + descriptionSize.Y + levelSize.Y + costSize.Y + titleDescriptionPadding + descriptionLevelPadding));
+            else // Init for Text Box of Title Node or Choice Node
+                textBox = new Rectangle(0, 0, (int)(titleSize.X + padding), (int)(titleSize.Y + padding));
+
         }
 
 
@@ -127,6 +141,16 @@ namespace GalacticSurvival
                 }
             }
 
+            // Draws Children Ship Upgrades
+            if (type == "ship")
+            {
+                foreach (var c in children)
+                {
+                    Game1.DrawLine(_spriteBatch, graphics, centerPosition, c.centerPosition, 4, Color.Yellow);
+                    c.Draw(gameTime, _spriteBatch, graphics, cursor, currentWeapon, currentAmmo);
+                }
+            }
+
             // Drawns Minion Sub Trees and Children
             if (type == "minion")
             {
@@ -154,52 +178,70 @@ namespace GalacticSurvival
             textBox.X = cursor.collider.container.X + cursor.collider.container.Width * 2;
             textBox.Y = cursor.collider.container.Y;
 
-            levelText = "Level: " + level;
-            costText = "$" + cost;
-
-            // Updates level and cost size based on current level and cost to upgrade
-            levelSize = descriptionFont.MeasureString(levelText);
-            costSize = descriptionFont.MeasureString(costText);
-
-
             if (titleSize.X >= descriptionSize.X &&
                 titleSize.X >= levelSize.X &&
                 titleSize.X >= costSize.X)
-                textBox.Width = (int)(padding + titleSize.X + padding);
+                     textBox.Width = (int)(padding + titleSize.X + padding);
 
             else if (descriptionSize.X >= titleSize.X &&
                      descriptionSize.X >= levelSize.X &&
                      descriptionSize.X >= costSize.X)
-                textBox.Width = (int)(padding + descriptionSize.X + padding);
+                     textBox.Width = (int)(padding + descriptionSize.X + padding);
 
             else if (levelSize.X >= titleSize.X &&
                      levelSize.X >= descriptionSize.X &&
                      levelSize.X >= costSize.X)
-                textBox.Width = (int)(padding + levelSize.X + padding);
+                     textBox.Width = (int)(padding + levelSize.X + padding);
 
             else
                 textBox.Width = (int)(padding + costSize.X + padding);
 
-            textBox.Height = (int)(padding + titleSize.Y + descriptionSize.Y + levelSize.Y + costSize.Y + descriptionLevelPadding + levelCostPadding + padding);// + titleDescriptionPadding + descriptionLevelPadding);
 
+            if (cost > 0) // Draws Desctiption of Nodes that can be upgraded
+            {
+                levelText = "Level: " + level;
+                costText = "$" + cost;
 
-            // Update's text positions
-            titlePosition.X = textBox.X + padding;
-            titlePosition.Y = textBox.Y + padding;
-            descriptionPosition.X = titlePosition.X;
-            descriptionPosition.Y = titlePosition.Y + titleSize.Y + titleDescriptionPadding;
-            levelPosition.X = descriptionPosition.X;
-            levelPosition.Y = descriptionPosition.Y + descriptionSize.Y + descriptionLevelPadding;
-            costPosition.X = levelPosition.X;
-            costPosition.Y = levelPosition.Y + levelSize.Y + levelCostPadding;
+                // Updates level and cost size based on current level and cost to upgrade
+                levelSize = descriptionFont.MeasureString(levelText);
+                costSize = descriptionFont.MeasureString(costText);
 
-            // Draws Text Box
-            _spriteBatch.Draw(Game1.red, textBox, Color.White);
+                textBox.Height = (int)(padding + titleSize.Y + descriptionSize.Y + levelSize.Y + costSize.Y + descriptionLevelPadding + levelCostPadding + padding + padding);
 
-            _spriteBatch.DrawString(titleFont, title, titlePosition, Color.White);
-            _spriteBatch.DrawString(descriptionFont, description, descriptionPosition, Color.White);
-            _spriteBatch.DrawString(descriptionFont, levelText, levelPosition, Color.White);
-            _spriteBatch.DrawString(descriptionFont, costText, costPosition, Color.White);
+                // Update's text positions
+                titlePosition.X = textBox.X + padding;
+                titlePosition.Y = textBox.Y + padding;
+                descriptionPosition.X = titlePosition.X;
+                descriptionPosition.Y = titlePosition.Y + titleSize.Y + titleDescriptionPadding;
+                levelPosition.X = descriptionPosition.X;
+                levelPosition.Y = descriptionPosition.Y + descriptionSize.Y + descriptionLevelPadding;
+                costPosition.X = levelPosition.X;
+                costPosition.Y = levelPosition.Y + levelSize.Y + levelCostPadding;
+
+                // Draws Text Box
+                _spriteBatch.Draw(Game1.red, textBox, Color.White);
+
+                _spriteBatch.DrawString(titleFont, title, titlePosition, Color.White);
+                _spriteBatch.DrawString(descriptionFont, description, descriptionPosition, Color.White);
+                _spriteBatch.DrawString(descriptionFont, levelText, levelPosition, Color.White);
+                _spriteBatch.DrawString(descriptionFont, costText, costPosition, Color.White);
+            }
+            else // Draws Title and Choice Node Descriptions
+            {
+                textBox.Height = (int)(padding + titleSize.Y + titleDescriptionPadding + descriptionSize.Y + padding);
+
+                // Draws Text Box
+                _spriteBatch.Draw(Game1.red, textBox, Color.White);
+
+                titlePosition.X = textBox.X + padding;
+                titlePosition.Y = textBox.Y + padding;
+
+                descriptionPosition.X = titlePosition.X;
+                descriptionPosition.Y = titlePosition.Y + titleSize.Y + titleDescriptionPadding;
+
+                _spriteBatch.DrawString(titleFont, title, titlePosition, Color.White);
+                _spriteBatch.DrawString(descriptionFont, description, descriptionPosition, Color.White);
+            }
         }
 
 

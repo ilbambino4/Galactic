@@ -7,15 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GalacticSurvival
 {
     internal class UpgradeTree
     {
         private MouseState mouseState;
-        private bool clicked = false;
-        private bool released = true;
-        private bool held = false;
 
         private TreeNode weaponTree;
         private TreeNode ammoTree;
@@ -31,12 +29,15 @@ namespace GalacticSurvival
         private int choicePadding = 84;
         private int nodePadding = 96;
 
-        private string currentWeapon = "default";
-        private string currentAmmo = "default";
+        public string currentWeapon = "default";
+        public string currentAmmo = "default";
+
+        private UI NextRoundButton;
+        public Dictionary<string, UI> elements = new Dictionary<string, UI>();
 
 
 
-        public UpgradeTree(GraphicsDeviceManager graphics)
+        public UpgradeTree(GraphicsDeviceManager graphics, Camera camera)
         {
             CreateWeaponTree();
 
@@ -45,6 +46,28 @@ namespace GalacticSurvival
             CreateMinionTree();
 
             CreateShipTree();
+
+
+
+            string text;
+            Vector2 textSize;
+            Vector2 textPos;
+            Vector2 buttonPos;
+            int buttonWidth;
+            int buttonHeight;
+
+            // Creates Start Next Round Button
+            buttonWidth = 364;
+            buttonHeight = 80;
+            buttonPos.X = graphics.PreferredBackBufferWidth/2 - buttonWidth/2;
+            buttonPos.Y = graphics.PreferredBackBufferHeight - buttonHeight - buttonHeight/2;
+            buttonPos = camera.ScreenToWorld(buttonPos, 0);
+            text = "Begin Next Round";
+            textSize = Game1.Text.MeasureString(text);
+            textPos.X = buttonPos.X + buttonWidth / 2 - textSize.X / 2;
+            textPos.Y = buttonPos.Y + buttonHeight / 2 - textSize.Y / 2;
+            NextRoundButton = new UI(buttonPos, buttonWidth, buttonHeight, text, Color.White, textPos, Game1.Text);
+            elements["nextLevel"] = NextRoundButton; // Adds created element to elements list
         }
 
 
@@ -54,14 +77,14 @@ namespace GalacticSurvival
             TreeNode currentSubNode;
 
             // Creates Weapon Tree
-            weaponTree = new TreeNode("weapon", new Vector2(0, -nodePadding*1.25f), 64, 64, Game1.green, "Main Weapon Selection", "", 0, Game1.Text, Game1.Text);
+            weaponTree = new TreeNode("weapon", new Vector2(-32, -nodePadding*1.25f - 96), 64, 64, Game1.green, "Weapon Selection", "Select your main weapon of choice\nto protect yourself from the \nonslaught of enemies.", 0, Game1.Text, Game1.TextSmall);
             treeNodes["weapon"] = weaponTree;
 
             // Creates Weapon Tree Choices
-            weaponTree.choiceNodes.Add(new TreeNode("defaultGun", new Vector2(weaponTree.position.X, weaponTree.position.Y + choicePadding), 64, 64, Game1.green, "Simple Gun", "", 0, Game1.Text, Game1.Text));
-            weaponTree.choiceNodes.Add(new TreeNode("railGun", new Vector2(weaponTree.position.X - choicePadding, weaponTree.position.Y), 64, 64, Game1.green, "Rail Gun", "", 0, Game1.Text, Game1.Text));
-            weaponTree.choiceNodes.Add(new TreeNode("scatterGun", new Vector2(weaponTree.position.X, weaponTree.position.Y - choicePadding), 64, 64, Game1.green, "Scatter Gun", "", 0, Game1.Text, Game1.Text));
-            weaponTree.choiceNodes.Add(new TreeNode("barrageGun", new Vector2(weaponTree.position.X + choicePadding, weaponTree.position.Y), 64, 64, Game1.green, "Barrage Gun", "", 0, Game1.Text, Game1.Text));
+            weaponTree.choiceNodes.Add(new TreeNode("defaultGun", new Vector2(weaponTree.position.X, weaponTree.position.Y + choicePadding), 64, 64, Game1.green, "Simple Gun", "Base weapon attached to all factory\ndefault gun ships.\nThis will only get you so far, in terms\nof power.", 0, Game1.Text, Game1.TextSmall));
+            weaponTree.choiceNodes.Add(new TreeNode("railGun", new Vector2(weaponTree.position.X - choicePadding, weaponTree.position.Y), 64, 64, Game1.green, "Rail Gun", "Strong precision based weapon. Has a\nslight ammount of charge time and a\nlow fire rate, but makes up for it with\nits devastating power, perfect accuracy,\nand built in ammo piercing capabilities.", 0, Game1.Text, Game1.TextSmall));
+            weaponTree.choiceNodes.Add(new TreeNode("scatterGun", new Vector2(weaponTree.position.X, weaponTree.position.Y - choicePadding), 64, 64, Game1.green, "Scatter Gun", "Powerful weapon that closely resembles the\ncommon \"shotgun\".\nVery useful for clearing out large groups of\nenemies.", 0, Game1.Text, Game1.TextSmall));
+            weaponTree.choiceNodes.Add(new TreeNode("barrageGun", new Vector2(weaponTree.position.X + choicePadding, weaponTree.position.Y), 64, 64, Game1.green, "Barrage Gun", "A devastating weapon with a fire\nrate so high that it easily compansates\nfor its low accuracy and low damage\nper shot fired.", 0, Game1.Text, Game1.TextSmall));
 
             // railGun Upgrades
             currentSubNode = new TreeNode("fireRate", new Vector2(weaponTree.position.X - nodePadding, weaponTree.position.Y - nodePadding * 2.25f), 64, 64, Game1.green, "Fire Rate", "", 500, Game1.Text, Game1.Text);
@@ -103,7 +126,7 @@ namespace GalacticSurvival
             TreeNode currentSubNode;
 
             // Creates Ammo Tree
-            ammoTree = new TreeNode("ammo", new Vector2(-nodePadding * 1.25f, 0), 64, 64, Game1.green, "Change Your Ammo Type", "", 0, Game1.Text, Game1.Text);
+            ammoTree = new TreeNode("ammo", new Vector2(-nodePadding * 1.25f - 32, -96), 64, 64, Game1.green, "Ammo Selection", "Select your Ammo Type.\nAmmo can be upgraded and\nchanged to be more destructive.", 0, Game1.Text, Game1.TextSmall);
             treeNodes["ammo"] = ammoTree;
 
             // Creates Ammo Tree Choices
@@ -164,7 +187,7 @@ namespace GalacticSurvival
             TreeNode currentSubNode;
 
             // Creates Minion Tree
-            minionTree = new TreeNode("minion", new Vector2(nodePadding * 1.25f, 0), 64, 64, Game1.green, "Minion Skill Tree", "", 0, Game1.Text, Game1.Text);
+            minionTree = new TreeNode("minion", new Vector2(nodePadding * 1.25f - 32, -96), 64, 64, Game1.green, "Increase Supporting Ship Count", "Purchasing grants an additional Support Ship\nthat can be upgraded and modified.", 1500, Game1.Text, Game1.TextSmall);
             treeNodes["minion"] = minionTree;
 
             currentSubNode = new TreeNode("1", new Vector2(minionTree.position.X + nodePadding * 2f, minionTree.position.Y), 64, 64, Game1.green, "", "", 500, Game1.Text, Game1.Text);
@@ -189,10 +212,17 @@ namespace GalacticSurvival
             TreeNode currentSubNode;
 
             // Creates Ship Tree
-            shipTree = new TreeNode("ship", new Vector2(0, nodePadding * 1.25f), 64, 64, Game1.green, "Ship Skill Tree", "", 0, Game1.Text, Game1.Text);
+            shipTree = new TreeNode("ship", new Vector2(-32, nodePadding * 1.25f - 96), 64, 64, Game1.green, "Ship Upgrades", "Basic, yet essential upgrades\nto your ship", 0, Game1.Text, Game1.TextSmall);
             treeNodes["ship"] = shipTree;
 
-
+            
+            // shipUpgrades
+            currentSubNode = new TreeNode("health", new Vector2(shipTree.position.X - nodePadding, shipTree.position.Y + nodePadding * 2.25f), 64, 64, Game1.green, "Health", "", 500, Game1.Text, Game1.Text);
+            shipTree.children.Add(currentSubNode);
+            currentSubNode = new TreeNode("shield", new Vector2(shipTree.position.X, shipTree.position.Y + nodePadding * 2.25f), 64, 64, Game1.green, "Shield", "", 500, Game1.Text, Game1.Text);
+            shipTree.children.Add(currentSubNode);
+            currentSubNode = new TreeNode("repairRate", new Vector2(shipTree.position.X + nodePadding, shipTree.position.Y + nodePadding * 2.25f), 64, 64, Game1.green, "Repair Rate", "", 500, Game1.Text, Game1.Text);
+            shipTree.children.Add(currentSubNode);
         }
 
 
@@ -201,25 +231,17 @@ namespace GalacticSurvival
             mouseState = Mouse.GetState();
 
 
-            // Updates held
-            held = mouseState.LeftButton == ButtonState.Pressed;
-
-
-            // Updates clicked and released
-            if (mouseState.LeftButton == ButtonState.Pressed && released)
+            if (elements["nextLevel"].pressed)
             {
-                clicked = true;
-                released = false;
-            }
-            if (clicked == false && mouseState.LeftButton == ButtonState.Released)
-            {
-                clicked = false;
-                released = true;
+                elements["nextLevel"].pressed = false;
+                Console.log("???");
+
+                return Game1.State.Mission;
             }
 
 
             // Checks weapon node for clicked and updates SHOW CHOICES
-            if (treeNodes["weapon"].IsNodeHighlighted(cursor) && clicked)
+            if (treeNodes["weapon"].IsNodeHighlighted(cursor) && cursor.clicked)
             {
                 if (treeNodes["weapon"].showChoices)
                 {
@@ -233,9 +255,8 @@ namespace GalacticSurvival
                 }
             }
 
-
             // Checks ammo node for clicked and updates SHOW CHOICES
-            if (treeNodes["ammo"].IsNodeHighlighted(cursor) && clicked)
+            if (treeNodes["ammo"].IsNodeHighlighted(cursor) && cursor.clicked)
             {
                 if (treeNodes["ammo"].showChoices)
                 {
@@ -249,13 +270,19 @@ namespace GalacticSurvival
                 }
             }
 
+            // Checks minion node for click
+            if (treeNodes["minion"].IsNodeHighlighted(cursor) && cursor.clicked && minionTree.minionCount < 4)
+            {
+                minionTree.minionCount += 1;
+                minionTree.minionUpdate = false;
+            }
 
             // Checks Minion Nodes for clicked and updates SHOW CHOICES
             if (minionTree.minionCount > 0)
             {
                 for (var i = 1; i <= minionTree.minionCount; i++)
                 {
-                    if (minionTree.minions[i].IsNodeHighlighted(cursor) && clicked)
+                    if (minionTree.minions[i].IsNodeHighlighted(cursor) && cursor.clicked)
                     {
                         if (minionTree.minions[i].showChoices)
                         {
@@ -272,46 +299,32 @@ namespace GalacticSurvival
             }
 
 
-            // Checks minion node for click
-            if (treeNodes["minion"].IsNodeHighlighted(cursor) && clicked && minionTree.minionCount < 4)
-            {
-                minionTree.minionCount += 1;
-                minionTree.minionUpdate = false;
-            }
 
 
-            // Checks ship node for highlighted
-            if (treeNodes["ship"].IsNodeHighlighted(cursor))
-            {
 
-            }
-
-            
             // Handles clicking for all weapon choosing nodes
             if (weaponChoosing)
             {
                 foreach (var t in weaponTree.choiceNodes)
                 {
-                    if (t.IsNodeHighlighted(cursor) && clicked)
+                    if (t.IsNodeHighlighted(cursor) && cursor.clicked)
                     {
                         currentWeapon = t.type;
                     }
                 }
             }
 
-
             // Handles clicking for all ammo choosing nodes
             if (ammoChoosing)
             {
                 foreach (var t in ammoTree.choiceNodes)
                 {
-                    if (t.IsNodeHighlighted(cursor) && clicked)
+                    if (t.IsNodeHighlighted(cursor) && cursor.clicked)
                     {
                         currentAmmo = t.type;
                     }
                 }
             }
-
 
             // Handles clicking for all minion choice nodes
             for (var i = 1; i <= minionTree.minionCount; i++)
@@ -320,19 +333,64 @@ namespace GalacticSurvival
                 {
                     foreach (var t in minionTree.minions[i].choiceNodes)
                     {
-                        if (t.IsNodeHighlighted(cursor) && clicked)
+                        if (t.IsNodeHighlighted(cursor) && cursor.clicked)
                         {
                             minionTree.minions[i].minion = t.type;
                             minionTree.minions[i].showChildren = true;
-                            Console.log(minionTree.minions[i].minion + "");
                         }
                     }
                 }
             }
 
 
+
+
+
+            // Handles Clicking for Weapon Upgrade Nodes
+            foreach(var c in weaponTree.children)
+            {
+                if (c.IsNodeHighlighted(cursor) && cursor.clicked && currentWeapon == c.weapon)
+                {
+                    Console.log(c.type);
+                }
+            }
+
+            // Handles Clicking for Ammo Upgrade Nodes
+            foreach (var c in ammoTree.children)
+            {
+                if (c.IsNodeHighlighted(cursor) && cursor.clicked && currentAmmo == c.ammo)
+                {
+                    Console.log(c.type);
+                }
+            }
+
+            // Handles Clicking for Minion Upgrade Nodes
+            for (var i = 1; i <= minionTree.minionCount; i++)
+            {
+                foreach(var c in minionTree.minions[i].children)
+                {
+                    if (c.IsNodeHighlighted(cursor) && cursor.clicked && c.minion == minionTree.minions[i].minion)
+                    {
+                        Console.log(c.type + "");
+                    }
+                }
+            }
+
+            // Handles Clicking for Ship Upgrade Nodes
+            foreach (var c in shipTree.children)
+            {
+                if (c.IsNodeHighlighted(cursor) && cursor.clicked)
+                {
+                    Console.log(c.type);
+                }
+            }
+
+
+
+
+
             // Closes choices if their nodes are not clicked on
-            if (clicked)
+            if (cursor.clicked)
             {
                 // Check to see if weapon is clicked
                 if (!treeNodes["weapon"].IsNodeHighlighted(cursor))
@@ -359,10 +417,8 @@ namespace GalacticSurvival
                 }
             }
 
-
-
             // resets clicked
-            clicked = false;
+            cursor.clicked = false;
 
             return currentState;
         }
@@ -370,6 +426,12 @@ namespace GalacticSurvival
 
         public void Draw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics, Cursor cursor)
         {
+            foreach (var e in elements) // Draws UI elements attached to Main Menu
+            {
+                e.Value.Draw(gameTime, _spriteBatch, graphics);
+            }
+
+
             // Draws trees
             weaponTree.Draw(gameTime, _spriteBatch, graphics, cursor, currentWeapon, null);
             ammoTree.Draw(gameTime, _spriteBatch, graphics, cursor, null, currentAmmo);
@@ -460,6 +522,14 @@ namespace GalacticSurvival
                         }
                     }
                 }
+            }
+
+
+            // Handles Ship Upgrade Highlighting
+            foreach(var c in shipTree.children)
+            {
+                if (c.IsNodeHighlighted(cursor))
+                    c.DrawDescriptor(gameTime, _spriteBatch, graphics, cursor);
             }
         }
     }

@@ -53,15 +53,15 @@ namespace GalacticSurvival
             elements["play"] = PlayButton; // Adds created element to elements list
         }
 
-        public Game1.State Update(Game1.State currentState, Mission mission)
+        public Game1.State Update(Game1.State currentState, Mission mission, Cursor cursor, GraphicsDeviceManager graphics, Camera camera)
         {
-            if (UpdatePlayButton())
+            if (UpdatePlayButton() && cursor.clicked)
             {
                 elements["play"].pressed = false;
 
                 if (mission != null)
                 {
-                    mission.Init();
+                    mission.Init(graphics, camera);
                 }
 
                 return Game1.State.Mission;

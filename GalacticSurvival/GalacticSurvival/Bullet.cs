@@ -26,13 +26,51 @@ namespace GalacticSurvival
 
         public int damage = 25;
 
-        public Bullet(Vector2 pos, float a, float s)
+        private UpgradeTree tree;
+
+        public Bullet(Vector2 pos, float a, float s, UpgradeTree t)
         {
             position = pos;
             angle = a;
             speed = s;
             container = new Rectangle((int)pos.X, (int)pos.Y, 8, 8);
             rotationOrigin = new Vector2(4, 4);
+            tree = t;
+
+            switch (t.currentWeapon)
+            {
+                case "default":
+                    damage = 25;
+                    speed = 10;
+                    break;
+
+
+
+                case "railGun":
+                    damage = 200;
+                    speed = 20;
+                    break;
+
+
+
+                case "scatterGun":
+                    damage = 10;
+                    speed = 10;
+                    break;
+
+
+
+                case "barrageGun":
+                    damage = 20;
+                    speed = 15;
+                    break;
+
+
+
+                default:
+                    Console.log("ERROR UNKOWN CURRENT WEAPON FOR BULLET: " + t.currentWeapon);
+                    break;
+            }
         }
 
         public bool Update(GameTime gameTime, GraphicsDeviceManager graphics, Rectangle bulletBoundry)

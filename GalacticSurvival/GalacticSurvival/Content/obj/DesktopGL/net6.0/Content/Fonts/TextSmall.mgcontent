@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Text.spritefont</SourceFile>
-  <SourceTime>2024-01-12T13:13:23-07:00</SourceTime>
-  <DestFile>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Text.xnb</DestFile>
-  <DestTime>2024-01-31T11:11:20.9419142-07:00</DestTime>
+  <SourceFile>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/TextSmall.spritefont</SourceFile>
+  <SourceTime>2024-01-31T11:33:05.6670027-07:00</SourceTime>
+  <DestFile>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Content/Fonts/TextSmall.xnb</DestFile>
+  <DestTime>2024-01-31T11:33:18.4159112-07:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2022-07-26T05:44:56-06:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>

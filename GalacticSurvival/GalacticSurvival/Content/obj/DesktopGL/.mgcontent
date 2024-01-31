@@ -4,13 +4,17 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>E:/GalacticSurvival/GalacticSurvival/Content/AR.png</File>
-    <File>E:/GalacticSurvival/GalacticSurvival/Content/bullet.png</File>
-    <File>E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Face.spritefont</File>
-    <File>E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Text.spritefont</File>
-    <File>E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Title.spritefont</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/AR.png</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bullet.png</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Face.spritefont</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Text.spritefont</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/TextLarge.spritefont</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/TextSmall.spritefont</File>
+    <File>E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Title.spritefont</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

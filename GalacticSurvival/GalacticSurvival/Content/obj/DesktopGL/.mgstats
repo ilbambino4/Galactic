@@ -1,6 +1,8 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"E:/GalacticSurvival/GalacticSurvival/Content/AR.png","E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/AR.xnb","TextureProcessor","Texture2DContent",597,6229,0.0639766
-"E:/GalacticSurvival/GalacticSurvival/Content/bullet.png","E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/bullet.xnb","TextureProcessor","Texture2DContent",142,341,0.0006066
-"E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Face.spritefont","E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Face.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0.1137142
-"E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Text.spritefont","E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Text.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0.0079966
-"E:/GalacticSurvival/GalacticSurvival/Content/Fonts/Title.spritefont","E:/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Title.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0.0100328
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/AR.png","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/AR.xnb","TextureProcessor","Texture2DContent",597,6229,0.0778222
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bullet.png","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/bullet.xnb","TextureProcessor","Texture2DContent",142,341,0.0028022
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Face.spritefont","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Face.xnb","FontDescriptionProcessor","SpriteFontContent",2074,37919,0.0596911
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Text.spritefont","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Text.xnb","FontDescriptionProcessor","SpriteFontContent",2069,70687,0.0191895
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/TextLarge.spritefont","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/TextLarge.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0.0127562
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/TextSmall.spritefont","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/TextSmall.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0.0066817
+"E:/Galactic/GalacticSurvival/GalacticSurvival/Content/Fonts/Title.spritefont","E:/Galactic/GalacticSurvival/GalacticSurvival/Content/bin/DesktopGL/Fonts/Title.xnb","FontDescriptionProcessor","SpriteFontContent",2074,2102303,0.0891147

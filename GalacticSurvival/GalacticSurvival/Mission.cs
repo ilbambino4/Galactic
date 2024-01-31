@@ -23,8 +23,8 @@ namespace GalacticSurvival
 
         private int maxSpawners = 0;
 
-        private double spawnTimer = 1;
-        private double spawnerInterval = 3;
+        private double spawnTimer = 5;
+        private double spawnerInterval = 6;
 
         public Rectangle container;
         int width = 1728;
@@ -47,6 +47,7 @@ namespace GalacticSurvival
 
         private bool upgrading = false;
 
+
         public Mission(Player player, GraphicsDeviceManager graphics, Camera camera)
         {
             // Mission Container and mission vars setup
@@ -55,6 +56,8 @@ namespace GalacticSurvival
 
             upgrading = false;
             betweenRounds = false;
+
+            points = 10000;
 
             // UI SETUP
             // Vars used for Main Menu UI Creation
@@ -111,6 +114,7 @@ namespace GalacticSurvival
             textPos = camera.ScreenToWorld(textPos, 0); // Converts position to world coordinates for camera
             PointsText = new UI(text, Color.White, textPos, Game1.Text);
             elements["round"] = PointsText; // Adds created element to elements list
+            elements["oldRound"] = PointsText;
         }
 
 
@@ -136,47 +140,50 @@ namespace GalacticSurvival
 
             if (betweenRounds)
             {
-                cursor.Update(elements, camera);
+                cursor.UpdateElements(elements, camera);
 
-                if (!upgrading)
+                if (elements["nextRound"].pressed || elements["upgrade"].pressed)
                 {
-                    if (elements["nextRound"].pressed)
+                    currentRound += 1;
+
+                    // Updates Points Text
+                    var text = "ROUND: \n" + currentRound;
+                    var textSize = Game1.Text.MeasureString(text);
+                    var textPos = new Vector2(pointsPadding, roundPadding);
+                    textPos = camera.ScreenToWorld(textPos, 0); // Converts position to world coordinates for camera
+                    PointsText = new UI(text, Color.White, textPos, Game1.Text);
+                    elements["round"] = PointsText; // Adds created element to elements list
+
+                    text = "ROUND: \n" + (currentRound - 1);
+                    textSize = Game1.Text.MeasureString(text);
+                    textPos = new Vector2(pointsPadding, roundPadding);
+                    textPos = camera.ScreenToWorld(textPos, 0); // Converts position to world coordinates for camera
+                    PointsText = new UI(text, Color.White, textPos, Game1.Text);
+                    elements["oldRound"] = PointsText; // Adds created element to elements list
+
+                    // Hastens Spawn Interval per round
+                    if (spawnerInterval - 0.24 > 1)
+                        spawnerInterval -= 0.24;
+                    else
+                        spawnerInterval = 1;
+
+                    spawnTimer = spawnerInterval - 2;
+
+                    upgrading = false;
+                    maxSpawners = (int)(currentRound * 2.5f);
+                    betweenRounds = false;
+                    
+                    cursor.clicked = false;
+
+                    if (elements["upgrade"].pressed)
                     {
-                        currentRound += 1;
-
-                        // Updates Points Text
-                        var text = "ROUND: \n" + currentRound;
-                        var textSize = Game1.Text.MeasureString(text);
-                        var textPos = new Vector2(pointsPadding, roundPadding);
-                        textPos = camera.ScreenToWorld(textPos, 0); // Converts position to world coordinates for camera
-                        PointsText = new UI(text, Color.White, textPos, Game1.Text);
-                        elements["round"] = PointsText; // Adds created element to elements list
-
-                        // Hastens Spawn Interval per round
-                        if (spawnerInterval - 0.24 > 1)
-                            spawnerInterval -= 0.24;
-                        else
-                            spawnerInterval = 1;
-
-                        spawnTimer = spawnerInterval - 2;
-
-                        upgrading = false;
-                        maxSpawners = (int)(currentRound * 2.5f);
-                        betweenRounds = false;
+                        return Game1.State.UpgradeMenu;
                     }
-                    else if (elements["upgrade"].pressed)
-                    {
-                        upgrading = true;
-                    }
-                }
-                else
-                {
-                    return Game1.State.UpgradeMenu;
                 }
             }
             else
             {
-                cursor.Update(null, camera);
+                cursor.UpdateElements(null, camera);
 
                 spawnTimer += gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -195,7 +202,7 @@ namespace GalacticSurvival
                 // Updates spawned enemies
                 foreach (var e in enemies)
                 {
-                    currentEnemy = e.Update(gameTime, graphics, player, enemiesToRemove); // Updates current enemy
+                    currentEnemy = e.Update(gameTime, graphics, player, enemiesToRemove, this); // Updates current enemy
 
                     if (currentEnemy != null)
                     {
@@ -225,15 +232,14 @@ namespace GalacticSurvival
 
         public void Draw(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics, Player player, List<Enemy> enemies)
         {
-
-
             if (betweenRounds)
             {
                 player.BetweenRoundDraw(gameTime, _spriteBatch, graphics);// Draws player in between rounds
 
                 foreach (var e in elements) // Draws UI elements attached to Main Menu
                 {
-                    e.Value.Draw(gameTime, _spriteBatch, graphics);
+                    if (e.Key != "oldRound")
+                        e.Value.Draw(gameTime, _spriteBatch, graphics);
                 }
             }
             else
@@ -242,11 +248,11 @@ namespace GalacticSurvival
 
                 foreach (var e in enemies) // Draws enemies
                 {
-                    if (e.enemyType == "Spawner")
+                    if (e.type == "Spawner")
                     {
                         _spriteBatch.Draw(Game1.green, e.collider.container, Color.White);
                     }
-                    else if (e.enemyType == "Rusher")
+                    else if (e.type == "Rusher")
                     {
                         _spriteBatch.Draw(Game1.blue, e.collider.container, Color.White);
                     }
@@ -258,18 +264,34 @@ namespace GalacticSurvival
         }
 
 
-        public void Init()
+        public void DrawForUpgradeTree(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics, Player player, List<Enemy> enemies)
         {
+            elements["oldRound"].Draw(gameTime, _spriteBatch, graphics);
+            elements["points"].Draw(gameTime, _spriteBatch, graphics);
+        }
+
+
+        public void Init(GraphicsDeviceManager graphics, Camera camera)
+        {
+            points = 0;
             currentRound = 1;
-            maxSpawners = 4;
+            maxSpawners = 3;
             upgrading = false;
             betweenRounds = false;
             spawnTimer = 1;
-            spawnerInterval = 3;
+            spawnerInterval = 4;
 
             enemiesToAdd.Clear();
             enemiesToRemove.Clear();
             currentEnemy = null;
+
+            // Re-Creates Current Roud Text
+            var text = "ROUND: \n" + currentRound;
+            var textPos = new Vector2(pointsPadding, roundPadding);
+            textPos = camera.ScreenToWorld(textPos, 0); // Converts position to world coordinates for camera
+            PointsText = new UI(text, Color.White, textPos, Game1.Text);
+            elements["round"] = PointsText; // Adds created element to elements list
+            elements["oldRound"] = PointsText;
         }
 
     }

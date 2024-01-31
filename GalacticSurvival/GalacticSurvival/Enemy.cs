@@ -12,7 +12,7 @@ namespace GalacticSurvival
     {
         private int currentRound;
 
-        public string enemyType = "";
+        public string type = "";
 
         private Vector2 position;
         private Vector2 paddingCheck;
@@ -20,7 +20,7 @@ namespace GalacticSurvival
 
         private int spawnerSize = 96;
         private double spawnTimer;
-        private double spawnerInterval = 1.5;
+        private double spawnerInterval;
         private Enemy spawnedEnemy = null;
 
         private int rusherSize = 16;
@@ -32,22 +32,28 @@ namespace GalacticSurvival
         private float speed = 1.2f;
 
         public float health = 100;
+        public int extraPoints = 0;
 
         private Random random = new Random();
 
 
         // Spawns enemy Spawner
-        public Enemy(Player player, GraphicsDeviceManager graphics, string type, Rectangle missionContainer, List<Enemy> enemies, int round)
+        public Enemy(Player player, GraphicsDeviceManager graphics, string enemyType, Rectangle missionContainer, List<Enemy> enemies, int round)
         {
-            enemyType = type;
+            type = enemyType;
 
             currentRound = round;
 
-            health = round * 100f + round * 0.25f;
+            health = round * 100f;
 
-            spawnerInterval = 1.5 - currentRound * 0.05;
+            extraPoints = (int)(health * 1.5f);
+
+            spawnerInterval = 3.5 - currentRound * 0.05;
             if (spawnerInterval < 0.5)
                 spawnerInterval = 0.5;
+
+            spawnTimer = spawnerInterval - 1.5;
+
 
             var tempCollider = new Rectangle(0, 0, spawnerSize, spawnerSize);
 
@@ -106,14 +112,18 @@ namespace GalacticSurvival
         }
 
 
-        public Enemy(Player player, GraphicsDeviceManager graphics, string type, Vector2 pos, int round)
+        public Enemy(Player player, GraphicsDeviceManager graphics, string enemyType, Vector2 pos, int round, int extraP)
         {
-            switch (type)
+            currentRound = round;
+
+            extraPoints = extraP;
+
+            switch (enemyType)
             {
                 case "Rusher":
-                    health = currentRound * 0.25f;
+                    health = currentRound * 10f;
 
-                    enemyType = type;
+                    type = enemyType;
 
                     position = pos;
 
@@ -127,15 +137,20 @@ namespace GalacticSurvival
         }
 
 
-        public Enemy Update(GameTime gameTime, GraphicsDeviceManager graphics, Player player, List<Enemy> deadEnemies)
+        public Enemy Update(GameTime gameTime, GraphicsDeviceManager graphics, Player player, List<Enemy> deadEnemies, Mission mission)
         {
-            if (health < 0)
+            if (health <= 0)
             {
+                if (extraPoints > 0)
+                {
+                    mission.points += extraPoints;
+                }
+
                 deadEnemies.Add(this); // adds this enemy to remove, when it has died
             }
             else
             {
-                switch (enemyType)
+                switch (type)
                 {
                     case "Spawner":
                         spawnTimer += gameTime.ElapsedGameTime.TotalSeconds;
@@ -144,7 +159,17 @@ namespace GalacticSurvival
                         if (spawnTimer >= spawnerInterval)
                         {
                             spawnTimer = 0;
-                            spawnedEnemy = new Enemy(player, graphics, "Rusher", new Vector2(random.Next(collider.container.X, collider.container.X + spawnerSize), random.Next(collider.container.Y, collider.container.Y + spawnerSize)), currentRound);
+
+                            if (extraPoints > 0)
+                            {
+                                spawnedEnemy = new Enemy(player, graphics, "Rusher", new Vector2(random.Next(collider.container.X, collider.container.X + spawnerSize), random.Next(collider.container.Y, collider.container.Y + spawnerSize)), currentRound, 10);
+                                extraPoints -= 10;
+                            }
+                            else
+                            {
+                                spawnedEnemy = new Enemy(player, graphics, "Rusher", new Vector2(random.Next(collider.container.X, collider.container.X + spawnerSize), random.Next(collider.container.Y, collider.container.Y + spawnerSize)), currentRound, 0);
+                            }
+                                
                             return spawnedEnemy; // returns spawner spawned enemy
                         }
                     break;

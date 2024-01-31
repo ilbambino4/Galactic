@@ -18,7 +18,8 @@ namespace GalacticSurvival
 
         private Vector2 mousePosition = new Vector2();
 
-        private bool clicked = false;
+        public bool clicked = false;
+        public bool held = false;
         private bool released = true;
 
 
@@ -31,17 +32,12 @@ namespace GalacticSurvival
 
 
         // Updates Cursor
-        public void Update(Dictionary<string, UI> elements, Camera camera)
+        public void Update()
         {
             // Converts screen mouse pos
             mouseState = Mouse.GetState();
-            mousePosition.X = mouseState.X;
-            mousePosition.Y = mouseState.Y;
-            mousePosition = camera.ScreenToWorld(mousePosition, 0);
 
-
-            collider.container.X = (int)mousePosition.X;
-            collider.container.Y = (int)mousePosition.Y;
+            held = mouseState.LeftButton == ButtonState.Pressed;
 
             if (mouseState.LeftButton == ButtonState.Pressed && released)
             {
@@ -54,6 +50,22 @@ namespace GalacticSurvival
                 clicked = false;
                 released = true;
             }
+        }
+
+
+
+        public void UpdateElements(Dictionary<string, UI> elements, Camera camera)
+        {
+            // Converts screen mouse pos
+            mouseState = Mouse.GetState();
+            mousePosition.X = mouseState.X;
+            mousePosition.Y = mouseState.Y;
+            mousePosition = camera.ScreenToWorld(mousePosition, 0);
+
+
+            collider.container.X = (int)mousePosition.X;
+            collider.container.Y = (int)mousePosition.Y;
+
 
             if (elements != null)
             {
@@ -70,8 +82,6 @@ namespace GalacticSurvival
                     }
                 }
             }
-
-            clicked = false;
         }
 
 
