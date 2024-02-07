@@ -35,7 +35,7 @@ namespace GalacticSurvival
         Enemy currentEnemy = null;
 
         // Between Rounds UI VARS
-        private Dictionary<string, UI> elements = new Dictionary<string, UI>();
+        public Dictionary<string, UI> elements = new Dictionary<string, UI>();
         private UI UpgradeMenuButton;
         private UI StartNextRoundButton;
 
@@ -43,7 +43,7 @@ namespace GalacticSurvival
         private int roundPadding = 15;
 
         private UI PointsText;
-        private int pointsPadding = 15;
+        public int pointsPadding = 15;
 
         private bool upgrading = false;
 

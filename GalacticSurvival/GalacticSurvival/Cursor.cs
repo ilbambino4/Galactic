@@ -13,6 +13,7 @@ namespace GalacticSurvival
     internal class Cursor
     {
         public Collider collider;
+        public Collider visualCollider;
         private Texture2D texture;
         private MouseState mouseState;
 
@@ -27,7 +28,8 @@ namespace GalacticSurvival
         public Cursor(Texture2D t)
         {
             texture = t;
-            collider = new Collider(Vector2.Zero, t.Width, t.Height);
+            collider = new Collider(Vector2.Zero, t.Width/4, t.Height/4);
+            visualCollider = new Collider(Vector2.Zero, t.Width, t.Height);
         }
 
 
@@ -65,6 +67,8 @@ namespace GalacticSurvival
 
             collider.container.X = (int)mousePosition.X;
             collider.container.Y = (int)mousePosition.Y;
+            visualCollider.container.X = (int)mousePosition.X;
+            visualCollider.container.Y = (int)mousePosition.Y;
 
 
             if (elements != null)
@@ -88,7 +92,7 @@ namespace GalacticSurvival
         // Draws Cursor
         public void Draw(SpriteBatch _spriteBatch)
         {
-            _spriteBatch.Draw(texture, collider.container, Color.White);
+            _spriteBatch.Draw(texture, visualCollider.container, Color.White);
         }
     }
 }

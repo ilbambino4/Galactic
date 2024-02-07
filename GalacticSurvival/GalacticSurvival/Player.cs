@@ -88,24 +88,6 @@ namespace GalacticSurvival
 
                     if (!betweenRounds)
                     {
-                        /*if (cursor.held && tree.currentWeapon == "barrageGun") {
-                            currentBulletAngle = angle * (float)(180 / Math.PI);
-                            currentBulletAngle += -4 + (random.Next(9));
-                            currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
-
-                            bullets.Add(new Bullet(position, currentBulletAngle, 10, tree));
-                            shot = true;
-                        }
-                        else if (cursor.clicked)
-                        {
-                            currentBulletAngle = angle * (float)(180 / Math.PI);
-                            currentBulletAngle += -4 + (random.Next(9));
-                            currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
-
-                            bullets.Add(new Bullet(position, currentBulletAngle, 10, tree));
-                            shot = true;
-                        }*/
-
                         // Updates the Shooting timer
                         shootingTimer += gameTime.ElapsedGameTime.TotalSeconds;
 

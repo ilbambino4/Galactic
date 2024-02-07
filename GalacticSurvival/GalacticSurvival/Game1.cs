@@ -26,6 +26,7 @@ namespace GalacticSurvival
 
         public static Texture2D green;
         public static Texture2D blue;
+        public static Texture2D purple;
         public static Texture2D red;
 
         public static SpriteFont Title{get; set;}
@@ -81,6 +82,7 @@ namespace GalacticSurvival
             // Debug Textures
             green = CreateColoredTexture(GraphicsDevice, Color.Green, 16, 16);
             blue = CreateColoredTexture(GraphicsDevice, Color.Blue, 16, 16);
+            purple = CreateColoredTexture(GraphicsDevice, Color.Purple, 32, 32);
             red = CreateColoredTexture(GraphicsDevice, Color.DarkRed, 16, 16);
 
             // Loads Fonts
@@ -92,7 +94,7 @@ namespace GalacticSurvival
 
             camera = new Camera(new Vector2(0, 0), 0, new Vector2(1f, 1f), (1920, 1080));
 
-            cursor = new Cursor(blue);
+            cursor = new Cursor(purple);
 
             player.Load(_spriteBatch, Content); // Loads Player
         }
@@ -159,7 +161,7 @@ namespace GalacticSurvival
 
                     cursor.UpdateElements(upgradeTree.elements, camera);
 
-                    currentState = upgradeTree.Update(currentState, mission, cursor);
+                    currentState = upgradeTree.Update(gameTime, currentState, mission, cursor, _graphics, camera);
                     break;
                 // END OF UPGRADE MENU
 
@@ -229,7 +231,7 @@ namespace GalacticSurvival
                     if (upgradeTree != null)
                     {
                         mission.DrawForUpgradeTree(gameTime, _spriteBatch, _graphics, player, enemies);
-                        upgradeTree.Draw(gameTime, _spriteBatch, _graphics, cursor);
+                        upgradeTree.Draw(gameTime, _spriteBatch, _graphics, cursor, camera);
                     }
                     break;
                 // END OF UPGRADE MENU

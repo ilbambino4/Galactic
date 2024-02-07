@@ -16,7 +16,7 @@ namespace GalacticSurvival
         public string type;
         public string weapon = null;
         public string ammo = null;
-        public string minion = null;
+        public string minion = "simpleMinion";
 
         public Vector2 position;
         public Vector2 centerPosition;
@@ -71,8 +71,14 @@ namespace GalacticSurvival
         public int minionCount = 0;
         public bool minionUpdate = true;
 
+        public bool choiceNode = false;
 
-        public TreeNode(string t, Vector2 pos, int w, int h, Texture2D s, string tit, string desc, int c, SpriteFont tf, SpriteFont df)
+        public bool broke = false;
+        private double brokeTimer = 0;
+        private double brokeInterval = 1;
+
+
+        public TreeNode(string t, Vector2 pos, int w, int h, Texture2D s, string tit, string desc, int c, bool choice, SpriteFont tf, SpriteFont df)
         {
             type = t;
 
@@ -90,6 +96,8 @@ namespace GalacticSurvival
             level = 0;
             titleFont = tf;
             descriptionFont = df;
+
+            choiceNode = choice;
 
             titleSize = titleFont.MeasureString(title);
             descriptionSize = descriptionFont.MeasureString(description);
@@ -110,6 +118,22 @@ namespace GalacticSurvival
             else // Init for Text Box of Title Node or Choice Node
                 textBox = new Rectangle(0, 0, (int)(titleSize.X + padding), (int)(titleSize.Y + padding));
 
+        }
+
+
+        public void Update(GameTime gameTime, Game1.State currentState, Mission mission, Cursor cursor, GraphicsDeviceManager graphics, Camera camera)
+        {
+            // Resets points text after a set interval of time
+            if (broke)
+            {
+                brokeTimer += gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (brokeTimer >= brokeInterval)
+                {
+                    brokeTimer = 0;
+                    broke = false;
+                }
+            }
         }
 
 
@@ -172,12 +196,8 @@ namespace GalacticSurvival
         }
 
 
-        public void DrawDescriptor(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics, Cursor cursor)
+        public void DrawDescriptor(GameTime gameTime, SpriteBatch _spriteBatch, GraphicsDeviceManager graphics, Cursor cursor, Camera camera)
         {
-            // Updates descriptor's box to cursor's position
-            textBox.X = cursor.collider.container.X + cursor.collider.container.Width * 2;
-            textBox.Y = cursor.collider.container.Y;
-
             if (titleSize.X >= descriptionSize.X &&
                 titleSize.X >= levelSize.X &&
                 titleSize.X >= costSize.X)
@@ -197,39 +217,104 @@ namespace GalacticSurvival
                 textBox.Width = (int)(padding + costSize.X + padding);
 
 
-            if (cost > 0) // Draws Desctiption of Nodes that can be upgraded
+            // Resizes textbox based on the kind of tree node it is.
+            if (cost > 0 && choiceNode)
             {
-                levelText = "Level: " + level;
                 costText = "$" + cost;
-
-                // Updates level and cost size based on current level and cost to upgrade
-                levelSize = descriptionFont.MeasureString(levelText);
                 costSize = descriptionFont.MeasureString(costText);
 
+                textBox.Height = (int)(padding + titleSize.Y + descriptionSize.Y + costSize.Y + padding + padding + padding);
+            }
+            else if (cost > 0)
+            {
+                costText = "$" + cost;
+                costSize = descriptionFont.MeasureString(costText);
+
+                levelText = "Level: " + level;
+                levelSize = descriptionFont.MeasureString(levelText);
+
                 textBox.Height = (int)(padding + titleSize.Y + descriptionSize.Y + levelSize.Y + costSize.Y + descriptionLevelPadding + levelCostPadding + padding + padding);
+            }
+            else
+            {
+                if (description != "")
+                    textBox.Height = (int)(padding + titleSize.Y + titleDescriptionPadding + descriptionSize.Y + padding);
+                else
+                    textBox.Height = (int)(padding + titleSize.Y + padding);
+            }
 
-                // Update's text positions
-                titlePosition.X = textBox.X + padding;
-                titlePosition.Y = textBox.Y + padding;
-                descriptionPosition.X = titlePosition.X;
-                descriptionPosition.Y = titlePosition.Y + titleSize.Y + titleDescriptionPadding;
-                levelPosition.X = descriptionPosition.X;
-                levelPosition.Y = descriptionPosition.Y + descriptionSize.Y + descriptionLevelPadding;
-                costPosition.X = levelPosition.X;
-                costPosition.Y = levelPosition.Y + levelSize.Y + levelCostPadding;
 
-                // Draws Text Box
-                _spriteBatch.Draw(Game1.red, textBox, Color.White);
 
-                _spriteBatch.DrawString(titleFont, title, titlePosition, Color.White);
-                _spriteBatch.DrawString(descriptionFont, description, descriptionPosition, Color.White);
-                _spriteBatch.DrawString(descriptionFont, levelText, levelPosition, Color.White);
-                _spriteBatch.DrawString(descriptionFont, costText, costPosition, Color.White);
+            textBox.X = cursor.collider.container.X + cursor.collider.container.Width;
+            textBox.Y = cursor.collider.container.Y + cursor.collider.container.Height;
+
+            if (textBox.X + textBox.Width > camera.VirtualRes.Width / 2) 
+                textBox.X = camera.VirtualRes.Width / 2 - textBox.Width;
+
+            if (textBox.X < -camera.VirtualRes.Width / 2)
+                textBox.X = -camera.VirtualRes.Width / 2;
+
+            if (textBox.Y + textBox.Height > camera.VirtualRes.Height / 2)
+                textBox.Y = camera.VirtualRes.Height / 2 - textBox.Height;
+
+            if (textBox.Y < -camera.VirtualRes.Height / 2)
+                textBox.Y = -camera.VirtualRes.Height / 2;
+
+
+
+            if (cost > 0) // Draws Desctiption of Nodes that can be upgraded or bought
+            {
+                if (choiceNode)
+                {
+                    // Draws Text Box
+                    _spriteBatch.Draw(Game1.red, textBox, Color.White);
+
+                    // Update's text positions
+                    titlePosition.X = textBox.X + padding;
+                    titlePosition.Y = textBox.Y + padding;
+                    descriptionPosition.X = titlePosition.X;
+                    descriptionPosition.Y = titlePosition.Y + titleSize.Y + titleDescriptionPadding;
+                    costPosition.X = descriptionPosition.X;
+                    costPosition.Y = descriptionPosition.Y + descriptionSize.Y + padding;
+                    _spriteBatch.DrawString(titleFont, title, titlePosition, Color.White);
+                    _spriteBatch.DrawString(descriptionFont, description, descriptionPosition, Color.White);
+
+                    if (broke)
+                        costText = "Not Enough Points";
+                    else
+                        costText = "$" + cost;
+
+                    _spriteBatch.DrawString(descriptionFont, costText, costPosition, Color.White);
+                }
+                else
+                {
+                    // Draws Text Box
+                    _spriteBatch.Draw(Game1.red, textBox, Color.White);
+
+
+                    // Update's text positions
+                    titlePosition.X = textBox.X + padding;
+                    titlePosition.Y = textBox.Y + padding;
+                    descriptionPosition.X = titlePosition.X;
+                    descriptionPosition.Y = titlePosition.Y + titleSize.Y + titleDescriptionPadding;
+                    levelPosition.X = descriptionPosition.X;
+                    levelPosition.Y = descriptionPosition.Y + descriptionSize.Y + descriptionLevelPadding;
+                    costPosition.X = levelPosition.X;
+                    costPosition.Y = levelPosition.Y + levelSize.Y + levelCostPadding;
+
+                    _spriteBatch.DrawString(titleFont, title, titlePosition, Color.White);
+                    _spriteBatch.DrawString(descriptionFont, description, descriptionPosition, Color.White);
+                    _spriteBatch.DrawString(descriptionFont, levelText, levelPosition, Color.White);
+
+                    if (broke)
+                        costText = "Not Enough Points";
+                    else
+                        costText = "$" + cost;
+                    _spriteBatch.DrawString(descriptionFont, costText, costPosition, Color.White);
+                }
             }
             else // Draws Title and Choice Node Descriptions
             {
-                textBox.Height = (int)(padding + titleSize.Y + titleDescriptionPadding + descriptionSize.Y + padding);
-
                 // Draws Text Box
                 _spriteBatch.Draw(Game1.red, textBox, Color.White);
 
@@ -349,19 +434,19 @@ namespace GalacticSurvival
                             // Adds Choices for a minion
                             minions[i].choiceNodes.Clear();
 
-                            minionChoice = new TreeNode("simpleMinion", new Vector2(minions[i].position.X, minions[i].position.Y + choicePadding), 64, 64, Game1.green, "Simple Minion", "", 500, Game1.Text, Game1.Text);
+                            minionChoice = new TreeNode("simpleMinion", new Vector2(minions[i].position.X, minions[i].position.Y + choicePadding), 64, 64, Game1.green, "Simple Support", "Simple support ship that will fire at enemies.", 0, true, Game1.Text, Game1.TextSmall);
                             minionChoice.minion = "";
                             minions[i].choiceNodes.Add(minionChoice);
 
-                            minionChoice = new TreeNode("scatterMinion", new Vector2(minions[i].position.X - choicePadding, minions[i].position.Y), 64, 64, Game1.green, "Scatter Minion", "", 500, Game1.Text, Game1.Text);
+                            minionChoice = new TreeNode("scatterMinion", new Vector2(minions[i].position.X - choicePadding, minions[i].position.Y), 64, 64, Game1.green, "Scatter Support", "A support ship with a built in Scatter Gun.\nAble to be upgraded.", 500, true, Game1.Text, Game1.TextSmall);
                             minionChoice.minion = "";
                             minions[i].choiceNodes.Add(minionChoice);
 
-                            minionChoice = new TreeNode("barrageMinion", new Vector2(minions[i].position.X + choicePadding, minions[i].position.Y), 64, 64, Game1.green, "Barrage Minion", "", 500, Game1.Text, Game1.Text);
+                            minionChoice = new TreeNode("barrageMinion", new Vector2(minions[i].position.X + choicePadding, minions[i].position.Y), 64, 64, Game1.green, "Barrage Support", "A support ship with a built in Barrage Gun.\nAble to be upgraded.", 500, true, Game1.Text, Game1.TextSmall);
                             minionChoice.minion = "";
                             minions[i].choiceNodes.Add(minionChoice);
 
-                            minionChoice = new TreeNode("shieldMinion", new Vector2(minions[i].position.X, minions[i].position.Y - choicePadding), 64, 64, Game1.green, "Shield Minion", "", 500, Game1.Text, Game1.Text);
+                            minionChoice = new TreeNode("shieldMinion", new Vector2(minions[i].position.X, minions[i].position.Y - choicePadding), 64, 64, Game1.green, "Shield Support", "A support ship that adds another shield layer to your ship.\nThe shield can be upgraded.", 500, true, Game1.Text, Game1.TextSmall);
                             minionChoice.minion = "";
                             minions[i].choiceNodes.Add(minionChoice);
 
@@ -371,41 +456,41 @@ namespace GalacticSurvival
                             // Adds Children Upgrades for a minion
 
                             // SCATTER MINION UPGRADES 
-                            currentUpgrade = new TreeNode("fireRate", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y - nodePadding), 64, 64, Game1.green, "Fire Rate", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("fireRate", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y - nodePadding), 64, 64, Game1.green, "Fire Rate", "Upgrades this Scatter Support's fire rate.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "scatterMinion";
                             minions[i].children.Add(currentUpgrade);
 
-                            currentUpgrade = new TreeNode("damage", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y), 64, 64, Game1.green, "Damage Multiplier", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("damage", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y), 64, 64, Game1.green, "Damage", "Upgrades this Scatter Support's base damage.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "scatterMinion";
                             minions[i].children.Add(currentUpgrade);
 
-                            currentUpgrade = new TreeNode("bulletSpread", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y + nodePadding), 64, 64, Game1.green, "Bullet Spread", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("bulletSpread", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y + nodePadding), 64, 64, Game1.green, "Bullet Spread", "Upgrades this Scatter Support's bullet spread making it more accurate.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "scatterMinion";
                             minions[i].children.Add(currentUpgrade);
 
                             // BARRAGE MINION UPGRADES
-                            currentUpgrade = new TreeNode("fireRate", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y - nodePadding), 64, 64, Game1.green, "Fire Rate", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("fireRate", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y - nodePadding), 64, 64, Game1.green, "Fire Rate", "Upgrades this Barrage Support's fire rate.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "barrageMinion";
                             minions[i].children.Add(currentUpgrade);
 
-                            currentUpgrade = new TreeNode("damage", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y), 64, 64, Game1.green, "Damage Multiplier", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("damage", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y), 64, 64, Game1.green, "Damage", "Upgrades this Barrage Support's base damage.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "barrageMinion";
                             minions[i].children.Add(currentUpgrade);
 
-                            currentUpgrade = new TreeNode("accuracy", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y + nodePadding), 64, 64, Game1.green, "Accuracy", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("accuracy", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y + nodePadding), 64, 64, Game1.green, "Accuracy", "Upgrades this Barrage Support's accuracy.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "barrageMinion";
                             minions[i].children.Add(currentUpgrade);
 
                             //SHIELD MINION UPGRADES
-                            currentUpgrade = new TreeNode("rechargeRate", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y - nodePadding), 64, 64, Game1.green, "Recharge Rate", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("rechargeRate", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y - nodePadding), 64, 64, Game1.green, "Recharge Rate", "Upgrades this Shield Support's shield recharge rate.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "shieldMinion";
                             minions[i].children.Add(currentUpgrade);
 
-                            currentUpgrade = new TreeNode("capacity", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y), 64, 64, Game1.green, "Shield Capacity", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("capacity", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y), 64, 64, Game1.green, "Shield Capacity", "Upgrades this Shield Support's shield capacity.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "shieldMinion";
                             minions[i].children.Add(currentUpgrade);
 
-                            currentUpgrade = new TreeNode("discharge", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y + nodePadding), 64, 64, Game1.green, "Discharge Damage", "", 500, Game1.Text, Game1.Text);
+                            currentUpgrade = new TreeNode("discharge", new Vector2(minions[i].position.X + nodePadding * 2, minions[i].position.Y + nodePadding), 64, 64, Game1.green, "Discharge Damage", "Upgrades the ammount of damage this Shield Support\nwill do to surrounding enemies on\na shield break.", 500, false, Game1.Text, Game1.TextSmall);
                             currentUpgrade.minion = "shieldMinion";
                             minions[i].children.Add(currentUpgrade);
                         }
@@ -453,7 +538,6 @@ namespace GalacticSurvival
                 // Repositions Upgrade Child Nodes depending on their height in the skill tree
                 if (minionCount > 0)
                 {
-                    Console.log("\n\n");
                     for (var i = 1; i <= minionCount; i++)
                     {
                         // MIDDLE MINION SLOT (1, 3 MINION)
