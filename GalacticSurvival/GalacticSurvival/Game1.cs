@@ -19,7 +19,7 @@ namespace GalacticSurvival
         }
 
 
-        private State currentState = State.UpgradeMenu;
+        private State currentState = State.MainMenu;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
