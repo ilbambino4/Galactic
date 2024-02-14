@@ -16,7 +16,7 @@ namespace GalacticSurvival
     {
         private MouseState mouseState;
 
-        private TreeNode weaponTree;
+        public TreeNode weaponTree;
         private TreeNode ammoTree;
         private TreeNode minionTree;
         private TreeNode shipTree;

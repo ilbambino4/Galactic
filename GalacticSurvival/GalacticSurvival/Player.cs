@@ -101,7 +101,7 @@ namespace GalacticSurvival
                                     currentBulletAngle += -4 + (random.Next(9));
                                     currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
 
-                                    bullets.Add(new Bullet(position, currentBulletAngle, 10, tree));
+                                    bullets.Add(new Bullet(position, currentBulletAngle, 10, tree, 0));
                                     shot = true;
 
                                     shootingTimer = 0;
@@ -111,7 +111,20 @@ namespace GalacticSurvival
 
 
                             case "railGun":
-                                    
+                                if (cursor.held && shootingTimer >= railGunInterval)
+                                {
+                                    currentBulletAngle = angle * (float)(180 / Math.PI);
+                                    currentBulletAngle = currentBulletAngle * (float)(Math.PI / 180);
+
+                                    // Gets damage modifier by using the specific level from tree
+                                    var damageMod = tree.weaponTree.children[1].level * 0.25f;
+
+                                    bullets.Add(new Bullet(position, currentBulletAngle, 20, tree, damageMod));
+                                    shot = true;
+
+                                    shootingTimer = 0;
+                                }
+
                                 break;
 
 
@@ -135,27 +148,11 @@ namespace GalacticSurvival
 
                         foreach (var b in bullets)
                         {
-                            if (!b.Update(gameTime, graphics, bulletBoundry))
+                            if (!b.Update(gameTime, graphics, bulletBoundry, enemies))
                                 bulletsToRemove.Add(b);
 
-                            foreach (var e in enemies)
-                            {
-                                if (b.container.Intersects(e.collider.container))
-                                {
-                                    bulletsToRemove.Add(b);
-
-                                    e.health -= b.damage;
-
-
-                                    if (e.type == "Spawner")
-                                    {
-                                        mission.points += 10;
-                                        Console.log(e.health + "");
-                                    }
-
-                                    break;
-                                }
-                            }
+                            if (b.CheckEnemyCollision(enemies, mission))
+                                bulletsToRemove.Add(b);
                         }
 
 
@@ -228,7 +225,7 @@ namespace GalacticSurvival
 
         public void initialize(GraphicsDeviceManager graphics)
         {
-            health = 1;
+            health = 100000;
             //position = new Vector2((graphics.PreferredBackBufferWidth / 2) - (playerSprite.Width / 2), (graphics.PreferredBackBufferHeight / 2) - (playerSprite.Height / 2));
             playerContainer = new Rectangle((int)position.X, (int)position.Y, playerSprite.Width, playerSprite.Height);
             rotationOrigin = new Vector2(playerSprite.Width / 2, playerSprite.Height / 2);

@@ -47,7 +47,6 @@ namespace GalacticSurvival
         private Vector2 levelSize = Vector2.Zero;
         private Vector2 costSize = Vector2.Zero;
 
-
         private int padding = 15;
         private int titleDescriptionPadding = 20;
         private int descriptionLevelPadding = 20;
